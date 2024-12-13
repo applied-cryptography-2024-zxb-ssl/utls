@@ -148,6 +148,7 @@ type cipherSuite struct {
 	aead   func(key, fixedNonce []byte) aead
 }
 
+// NOTE-zxb: cipher suites' meta info
 var cipherSuites = []*cipherSuite{ // TODO: replace with a map, since the order doesn't matter.
 	{TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305, 32, 0, 12, ecdheRSAKA, suiteECDHE | suiteTLS12, nil, nil, aeadChaCha20Poly1305},
 	{TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305, 32, 0, 12, ecdheECDSAKA, suiteECDHE | suiteECSign | suiteTLS12, nil, nil, aeadChaCha20Poly1305},
@@ -655,6 +656,7 @@ func mutualCipherSuite(have []uint16, want uint16) *cipherSuite {
 	return nil
 }
 
+// NOTE-zxb: key function to get the info of cipher suite by id
 func cipherSuiteByID(id uint16) *cipherSuite {
 	for _, cipherSuite := range utlsSupportedCipherSuites {
 		if cipherSuite.id == id {

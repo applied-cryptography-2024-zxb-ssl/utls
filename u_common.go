@@ -713,6 +713,7 @@ func utlsMacSHA384(key []byte) hash.Hash {
 	return hmac.New(sha512.New384, key)
 }
 
+// NOTE-zxb: meta info maintained by utls
 var utlsSupportedCipherSuites []*cipherSuite
 
 func init() {

@@ -16,6 +16,7 @@ import (
 	"io"
 )
 
+// NOTE-zxb: key exchange interface (for example RSA)
 // a keyAgreement implements the client and server side of a TLS key agreement
 // protocol by generating and processing key exchange messages.
 type keyAgreement interface {
