@@ -1,0 +1,3 @@
+[submodule "gmsm"]
+	path = gmsm
+	url = git@github.com:applied-cryptography-2024-zxb-ssl/gmsm.git
