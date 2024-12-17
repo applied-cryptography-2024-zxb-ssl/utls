@@ -383,6 +383,8 @@ func runMain(m *testing.M) int {
 	return m.Run()
 }
 
+// TODO-zxb-SM3: use this function to test SM3
+// TODO-zxb-SM4: use this function to test SM4
 func testHandshake(t *testing.T, clientConfig, serverConfig *Config) (serverState, clientState ConnectionState, err error) {
 	const sentinel = "SENTINEL\n"
 	c, s := localPipe(t)

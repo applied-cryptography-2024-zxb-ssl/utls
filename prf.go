@@ -85,6 +85,7 @@ var keyExpansionLabel = []byte("key expansion")
 var clientFinishedLabel = []byte("client finished")
 var serverFinishedLabel = []byte("server finished")
 
+// TODO-zxb-SM3: add SM3 support (SM3 supports hash.Hash type)
 func prfAndHashForVersion(version uint16, suite *cipherSuite) (func(result, secret, label, seed []byte), crypto.Hash) {
 	switch version {
 	case VersionTLS10, VersionTLS11:

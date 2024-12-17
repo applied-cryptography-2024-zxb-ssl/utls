@@ -1313,6 +1313,7 @@ func benchmarkHandshakeServer(b *testing.B, version uint16, cipherSuite uint16, 
 	close(feeder)
 }
 
+// TODO-zxb-SM2: add SM2 test function
 // NOTE-zxb: RSA test core function
 func BenchmarkHandshakeServer(b *testing.B) {
 	b.Run("RSA", func(b *testing.B) {
