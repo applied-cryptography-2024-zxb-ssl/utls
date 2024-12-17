@@ -23,6 +23,8 @@ import (
 	"golang.org/x/sys/cpu"
 
 	"golang.org/x/crypto/chacha20poly1305"
+
+	"github.com/emmansun/gmsm/sm4"
 )
 
 // CipherSuite is a TLS cipher suite. Note that most functions in this package
@@ -205,6 +207,7 @@ var cipherSuitesTLS13 = []*cipherSuiteTLS13{ // TODO: replace with a map.
 	{TLS_AES_128_GCM_SHA256, 16, aeadAESGCMTLS13, crypto.SHA256},
 	{TLS_CHACHA20_POLY1305_SHA256, 32, aeadChaCha20Poly1305, crypto.SHA256},
 	{TLS_AES_256_GCM_SHA384, 32, aeadAESGCMTLS13, crypto.SHA384},
+	{TLS_SM4_GCM_SHA256, 32, aeadSM4GCMTLS13, crypto.SHA256},
 }
 
 // cipherSuitesPreferenceOrder is the order in which we'll select (on the
@@ -576,6 +579,26 @@ func aeadAESGCMTLS13(key, nonceMask []byte) aead {
 	return ret
 }
 
+func aeadSM4GCMTLS13(key, nonceMask []byte) aead {
+	if len(nonceMask) != aeadNonceLength {
+		panic("tls: internal error: wrong nonce length")
+	}
+	// aes, err := aes.NewCipher(key)
+	block, err := sm4.NewCipher(key)
+	if err != nil {
+		panic(err)
+	}
+	var sm4gcm cipher.AEAD
+	sm4gcm, err = cipher.NewGCM(block)
+	if err != nil {
+		panic(err)
+	}
+
+	ret := &xorNonceAEAD{aead: sm4gcm}
+	copy(ret.nonceMask[:], nonceMask)
+	return ret
+}
+
 func aeadChaCha20Poly1305(key, nonceMask []byte) aead {
 	if len(nonceMask) != aeadNonceLength {
 		panic("tls: internal error: wrong nonce length")
@@ -717,6 +740,8 @@ const (
 	TLS_AES_128_GCM_SHA256       uint16 = 0x1301
 	TLS_AES_256_GCM_SHA384       uint16 = 0x1302
 	TLS_CHACHA20_POLY1305_SHA256 uint16 = 0x1303
+	// SM new cipher suites
+	TLS_SM4_GCM_SHA256 uint16 = 0x1401
 
 	// TLS_FALLBACK_SCSV isn't a standard cipher suite but an indicator
 	// that the client is doing version fallback. See RFC 7507.

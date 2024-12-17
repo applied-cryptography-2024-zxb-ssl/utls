@@ -714,6 +714,14 @@ func TestHandshakeClientCHACHA20SHA256(t *testing.T) {
 	runClientTestTLS13(t, test)
 }
 
+func TestHandshakeClientSM4GCMSHA256(t *testing.T) {
+	test := &clientTest{
+		name: "SM4-GCM-SHA256",
+		args: []string{"-ciphersuites", "TLS_SM4_GCM_SHA256"},
+	}
+	runClientTestTLS13(t, test)
+}
+
 func TestHandshakeClientECDSATLS13(t *testing.T) {
 	test := &clientTest{
 		name: "ECDSA",
