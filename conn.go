@@ -380,6 +380,7 @@ func (hc *halfConn) decrypt(record []byte) ([]byte, recordType, error) {
 			var err error
 			plaintext, err = c.Open(payload[:0], nonce, payload, additionalData)
 			if err != nil {
+				// ioutil.WriteFile("debug.log", []byte(err.Error()), 0644)
 				return nil, 0, alertBadRecordMAC
 			}
 		case cbcMode:

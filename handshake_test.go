@@ -41,6 +41,7 @@ import (
 // reference connection will always change.
 
 var (
+	// update = flag.Bool("update", true, "update golden files on failure")
 	update  = flag.Bool("update", false, "update golden files on failure")
 	fast    = flag.Bool("fast", false, "impose a quick, possibly flaky timeout on recorded tests")
 	keyFile = flag.String("keylog", "", "destination file for KeyLogWriter")

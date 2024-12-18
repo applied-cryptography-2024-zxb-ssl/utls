@@ -168,6 +168,12 @@ func (hs *serverHandshakeStateTLS13) processClientHello() error {
 	if needFIPS() {
 		preferenceList = defaultCipherSuitesTLS13FIPS
 	}
+
+	// SM: select cipher suite from config
+	if hs.c.config.CipherSuites != nil {
+		preferenceList = hs.c.config.CipherSuites
+	}
+
 	for _, suiteID := range preferenceList {
 		hs.suite = mutualCipherSuiteTLS13(hs.clientHello.cipherSuites, suiteID)
 		if hs.suite != nil {
@@ -178,6 +184,9 @@ func (hs *serverHandshakeStateTLS13) processClientHello() error {
 		c.sendAlert(alertHandshakeFailure)
 		return errors.New("tls: no cipher suite supported by both client and server")
 	}
+	// SM: debug
+	// ioutil.WriteFile("debug.log", []byte(strconv.Itoa(int(hs.suite.id))), 0644)
+
 	c.cipherSuite = hs.suite.id
 	hs.hello.cipherSuite = hs.suite.id
 	hs.transcript = hs.suite.hash.New()

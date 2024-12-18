@@ -225,6 +225,7 @@ func (test *clientTest) connFromCommand() (conn *recordingConn, child *exec.Cmd,
 		}
 	}
 
+	// ioutil.WriteFile("debug.log", []byte(strings.Join(command, " ")), 0644)
 	cmd := exec.Command(command[0], command[1:]...)
 	stdin = opensslInput(make(chan opensslInputEvent))
 	cmd.Stdin = stdin
@@ -312,6 +313,7 @@ func (test *clientTest) run(t *testing.T, write bool) {
 		if config == nil {
 			config = testConfig
 		}
+		// SM: test start
 		client := Client(clientConn, config)
 		defer client.Close()
 
@@ -715,11 +717,81 @@ func TestHandshakeClientCHACHA20SHA256(t *testing.T) {
 }
 
 func TestHandshakeClientSM4GCMSHA256(t *testing.T) {
-	test := &clientTest{
-		name: "SM4-GCM-SHA256",
-		args: []string{"-ciphersuites", "TLS_SM4_GCM_SHA256"},
+	serverConfig := testConfig.Clone()
+	// serverConfig.CipherSuites = []uint16{TLS_CHACHA20_POLY1305_SHA256}
+	serverConfig.CipherSuites = []uint16{TLS_SM4_GCM_SHA256}
+
+	// generate test payload of length N
+	const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	const letters_n = len(letters)
+
+	const payload_n = 1000000
+	payload := make([]byte, payload_n)
+	for i := range payload {
+		// payload[i] = letters[rand.Intn(letters_n)]
+		payload[i] = letters[i%letters_n]
 	}
-	runClientTestTLS13(t, test)
+
+	c, s := localPipe(t)
+
+	done := make(chan error)
+
+	go func() {
+		server := Server(s, serverConfig)
+		if err := server.Handshake(); err != nil {
+			panic(err)
+		}
+
+		// Server: receive payload_n bytes from client
+		var request [payload_n]byte
+		n := 0
+		for n < payload_n {
+			recv_n, _ := server.Read(request[n:])
+			if recv_n == 0 {
+				break
+			}
+			n += recv_n
+		}
+		if n != payload_n || bytes.Compare(request[:], payload) != 0 {
+			panic(fmt.Sprintf("Server: expected %v bytes, but %v received with compare() = %v",
+				payload_n, n, bytes.Compare(request[:], payload)))
+		}
+
+		// Server: send payload_n bytes
+		n, _ = server.Write(request[:])
+		if n != payload_n {
+			panic(fmt.Sprintf("Server: sending %v bytes, %v sent successfully", payload_n, n))
+		}
+		server.Close()
+
+		done <- nil
+	}()
+
+	client := Client(c, testConfig)
+
+	// Client: write some bytes to server
+	n, _ := client.Write(payload[:])
+	if n != payload_n {
+		panic(fmt.Sprintf("Client: sending %v bytes, %v sent successfully", payload_n, n))
+	}
+
+	// Client: receive payload_n bytes from server
+	var reply [payload_n]byte
+	n = 0
+	for n < payload_n {
+		recv_n, _ := io.ReadFull(client, reply[n:])
+		if recv_n == 0 {
+			break
+		}
+		n += recv_n
+	}
+	if n != payload_n || bytes.Compare(reply[:], payload) != 0 {
+		panic(fmt.Sprintf("Client: expected %v bytes, but %v received with compare() = %v",
+			payload_n, n, bytes.Compare(reply[:], payload)))
+	}
+	c.Close()
+
+	// ioutil.WriteFile("debug.log", payload, 0644)
 }
 
 func TestHandshakeClientECDSATLS13(t *testing.T) {
@@ -2060,6 +2132,7 @@ func testVerifyPeerCertificate(t *testing.T, version uint16) {
 		},
 	}
 
+	// SM: server configuration
 	for i, test := range tests {
 		c, s := localPipe(t)
 		done := make(chan error)
@@ -2245,6 +2318,7 @@ func TestAlertFlushing(t *testing.T) {
 	}
 }
 
+// SM: template test
 func TestHandshakeRace(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping in -short mode")
