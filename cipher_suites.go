@@ -223,7 +223,7 @@ var cipherSuitesTLS13 = []*cipherSuiteTLS13{ // TODO: replace with a map.
 	{TLS_AES_128_GCM_SHA256, 16, aeadAESGCMTLS13, crypto.SHA256},
 	{TLS_CHACHA20_POLY1305_SHA256, 32, aeadChaCha20Poly1305, crypto.SHA256},
 	{TLS_AES_256_GCM_SHA384, 32, aeadAESGCMTLS13, crypto.SHA384},
-	{TLS_SM4_GCM_SM3, 16, aeadAESGCMTLS13, TLS13SM3{}},
+	{TLS_SM4_GCM_SM3, 16, aeadSM4GCMTLS13, TLS13SM3{}},
 }
 
 // cipherSuitesPreferenceOrder is the order in which we'll select (on the
