@@ -5,7 +5,6 @@
 package tls
 
 import (
-	"crypto"
 	"crypto/ecdh"
 	"crypto/x509"
 	"hash"
@@ -210,7 +209,7 @@ type PubCipherSuiteTLS13 struct {
 	Id     uint16
 	KeyLen int
 	Aead   func(key, fixedNonce []byte) aead
-	Hash   crypto.Hash
+	Hash   TLS13Hash
 }
 
 func (c *cipherSuiteTLS13) toPublic() *PubCipherSuiteTLS13 {

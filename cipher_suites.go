@@ -19,6 +19,8 @@ import (
 	"hash"
 	"runtime"
 
+	"github.com/emmansun/gmsm/sm3"
+	"github.com/emmansun/gmsm/sm4"
 	"github.com/refraction-networking/utls/internal/boring"
 	"golang.org/x/sys/cpu"
 
@@ -55,6 +57,7 @@ var (
 // and might not match those returned by this function.
 func CipherSuites() []*CipherSuite {
 	return []*CipherSuite{
+		{TLS_SM4_GCM_SM3, "TLS_SM4_GCM_SM3", supportedOnlyTLS13, false},
 		{TLS_AES_128_GCM_SHA256, "TLS_AES_128_GCM_SHA256", supportedOnlyTLS13, false},
 		{TLS_AES_256_GCM_SHA384, "TLS_AES_256_GCM_SHA384", supportedOnlyTLS13, false},
 		{TLS_CHACHA20_POLY1305_SHA256, "TLS_CHACHA20_POLY1305_SHA256", supportedOnlyTLS13, false},
@@ -191,19 +194,36 @@ func selectCipherSuite(ids, supportedIDs []uint16, ok func(*cipherSuite) bool) *
 	return nil
 }
 
+type TLS13Hash interface {
+	New() hash.Hash
+	Size() int
+}
+
+type TLS13SM3 struct {
+}
+
+func (h TLS13SM3) New() hash.Hash {
+	return sm3.New()
+}
+
+func (h TLS13SM3) Size() int {
+	return sm3.Size
+}
+
 // A cipherSuiteTLS13 defines only the pair of the AEAD algorithm and hash
 // algorithm to be used with HKDF. See RFC 8446, Appendix B.4.
 type cipherSuiteTLS13 struct {
 	id     uint16
 	keyLen int
 	aead   func(key, fixedNonce []byte) aead
-	hash   crypto.Hash
+	hash   TLS13Hash
 }
 
 var cipherSuitesTLS13 = []*cipherSuiteTLS13{ // TODO: replace with a map.
 	{TLS_AES_128_GCM_SHA256, 16, aeadAESGCMTLS13, crypto.SHA256},
 	{TLS_CHACHA20_POLY1305_SHA256, 32, aeadChaCha20Poly1305, crypto.SHA256},
 	{TLS_AES_256_GCM_SHA384, 32, aeadAESGCMTLS13, crypto.SHA384},
+	{TLS_SM4_GCM_SM3, 16, aeadAESGCMTLS13, TLS13SM3{}},
 }
 
 // cipherSuitesPreferenceOrder is the order in which we'll select (on the
@@ -373,6 +393,7 @@ var defaultCipherSuitesTLS13 = []uint16{
 	TLS_AES_128_GCM_SHA256,
 	TLS_AES_256_GCM_SHA384,
 	TLS_CHACHA20_POLY1305_SHA256,
+	TLS_SM4_GCM_SM3,
 }
 
 var defaultCipherSuitesTLS13NoAES = []uint16{
@@ -575,6 +596,30 @@ func aeadAESGCMTLS13(key, nonceMask []byte) aead {
 	return ret
 }
 
+func aeadSM4GCMTLS13(key, nonceMask []byte) aead {
+	if len(nonceMask) != aeadNonceLength {
+		panic("tls: internal error: wrong nonce length")
+	}
+	sm4, err := sm4.NewCipher(key)
+	if err != nil {
+		panic(err)
+	}
+	var aead cipher.AEAD
+	if boring.Enabled {
+		aead, err = boring.NewGCMTLS13(sm4)
+	} else {
+		boring.Unreachable()
+		aead, err = cipher.NewGCM(sm4)
+	}
+	if err != nil {
+		panic(err)
+	}
+
+	ret := &xorNonceAEAD{aead: aead}
+	copy(ret.nonceMask[:], nonceMask)
+	return ret
+}
+
 func aeadChaCha20Poly1305(key, nonceMask []byte) aead {
 	if len(nonceMask) != aeadNonceLength {
 		panic("tls: internal error: wrong nonce length")
@@ -715,6 +760,9 @@ const (
 	TLS_AES_128_GCM_SHA256       uint16 = 0x1301
 	TLS_AES_256_GCM_SHA384       uint16 = 0x1302
 	TLS_CHACHA20_POLY1305_SHA256 uint16 = 0x1303
+
+	// RFC 8998 SM
+	TLS_SM4_GCM_SM3 uint16 = 0x00c6
 
 	// TLS_FALLBACK_SCSV isn't a standard cipher suite but an indicator
 	// that the client is doing version fallback. See RFC 7507.
