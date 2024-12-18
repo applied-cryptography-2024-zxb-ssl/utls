@@ -539,6 +539,7 @@ func TestHandshakeClientRSARC4(t *testing.T) {
 	runClientTestTLS12(t, test)
 }
 
+// NOTE-zxb: most suitable test for TLS_RSA_WITH_AES_128_GCM_SHA256?
 func TestHandshakeClientRSAAES128GCM(t *testing.T) {
 	test := &clientTest{
 		name: "AES128-GCM-SHA256",
