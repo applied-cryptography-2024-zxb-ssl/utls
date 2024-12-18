@@ -350,6 +350,8 @@ const (
 	TLS_GOSTR341112_256_WITH_MAGMA_CTR_OMAC      uint16 = 0xC101
 	TLS_GOSTR341112_256_WITH_28147_CNT_IMIT      uint16 = 0xC102
 	TLS_GOSTR341112_256_WITH_KUZNYECHIK_MGM_L    uint16 = 0xC103
+
+	RSA_SM4_GCM_SHA256 uint16 = 0xE05A
 )
 
 var DictCipherSuiteValueIndexed = map[uint16]string{
@@ -715,6 +717,8 @@ var DictCipherSuiteValueIndexed = map[uint16]string{
 	0xD002: "TLS_ECDHE_PSK_WITH_AES_256_GCM_SHA384",
 	0xD003: "TLS_ECDHE_PSK_WITH_AES_128_CCM_8_SHA256",
 	0xD005: "TLS_ECDHE_PSK_WITH_AES_128_CCM_SHA256",
+
+	0xE05A: "RSA_SM4_GCM_SHA256",
 }
 
 var DictCipherSuiteNameIndexed = map[string]uint16{
@@ -1081,4 +1085,6 @@ var DictCipherSuiteNameIndexed = map[string]uint16{
 	"TLS_ECDHE_PSK_WITH_AES_128_CCM_8_SHA256": 0xD003,
 
 	"TLS_ECDHE_PSK_WITH_AES_128_CCM_SHA256": 0xD005,
+
+	"RSA_SM4_GCM_SHA256": 0xE05A,
 }

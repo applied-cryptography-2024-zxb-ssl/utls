@@ -19,6 +19,7 @@ import (
 	"hash"
 	"runtime"
 
+	"github.com/emmansun/gmsm/sm4"
 	"github.com/refraction-networking/utls/internal/boring"
 	"golang.org/x/sys/cpu"
 
@@ -93,6 +94,7 @@ func InsecureCipherSuites() []*CipherSuite {
 		{TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA, "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA", supportedUpToTLS12, true},
 		{TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256, "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256", supportedOnlyTLS12, true},
 		{TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256, "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256", supportedOnlyTLS12, true},
+		{RSA_SM4_GCM_SHA256, "RSA_SM4_GCM_SHA256", supportedOnlyTLS12, true},
 	}
 }
 
@@ -172,6 +174,9 @@ var cipherSuites = []*cipherSuite{ // TODO: replace with a map, since the order 
 	{TLS_RSA_WITH_RC4_128_SHA, 16, 20, 0, rsaKA, 0, cipherRC4, macSHA1, nil},
 	{TLS_ECDHE_RSA_WITH_RC4_128_SHA, 16, 20, 0, ecdheRSAKA, suiteECDHE, cipherRC4, macSHA1, nil},
 	{TLS_ECDHE_ECDSA_WITH_RC4_128_SHA, 16, 20, 0, ecdheECDSAKA, suiteECDHE | suiteECSign, cipherRC4, macSHA1, nil},
+	// keyLen: 16-bit, see https://baike.baidu.com/item/SM4.0/3901780
+	// ivLen: 4-bit, same as GCM standard
+	{RSA_SM4_GCM_SHA256, 16, 0, 4, rsaKA, suiteTLS12, nil, nil, aeadSM4GCM},
 }
 
 // selectCipherSuite returns the first TLS 1.0–1.2 cipher suite from ids which
@@ -300,6 +305,9 @@ var cipherSuitesPreferenceOrder = []uint16{
 	// RC4
 	TLS_ECDHE_ECDSA_WITH_RC4_128_SHA, TLS_ECDHE_RSA_WITH_RC4_128_SHA,
 	TLS_RSA_WITH_RC4_128_SHA,
+
+	// GB/T 38636-2020
+	RSA_SM4_GCM_SHA256,
 }
 
 var cipherSuitesPreferenceOrderNoAES = []uint16{
@@ -323,6 +331,9 @@ var cipherSuitesPreferenceOrderNoAES = []uint16{
 	TLS_RSA_WITH_AES_128_CBC_SHA256,
 	TLS_ECDHE_ECDSA_WITH_RC4_128_SHA, TLS_ECDHE_RSA_WITH_RC4_128_SHA,
 	TLS_RSA_WITH_RC4_128_SHA,
+
+	// GB/T 38636-2020
+	RSA_SM4_GCM_SHA256,
 }
 
 // disabledCipherSuites are not used unless explicitly listed in Config.CipherSuites.
@@ -348,6 +359,7 @@ var rsaKexCiphers = map[uint16]bool{
 	TLS_RSA_WITH_AES_128_CBC_SHA256: true,
 	TLS_RSA_WITH_AES_128_GCM_SHA256: true,
 	TLS_RSA_WITH_AES_256_GCM_SHA384: true,
+	RSA_SM4_GCM_SHA256:              true,
 }
 
 var defaultCipherSuites []uint16
@@ -553,6 +565,30 @@ func aeadAESGCM(key, noncePrefix []byte) aead {
 	return ret
 }
 
+func aeadSM4GCM(key, noncePrefix []byte) aead {
+	if len(noncePrefix) != noncePrefixLength {
+		panic("tls: internal error: wrong nonce length")
+	}
+	sm4, err := sm4.NewCipher(key)
+	if err != nil {
+		panic(err)
+	}
+	var aead cipher.AEAD
+	if boring.Enabled {
+		aead, err = boring.NewGCMTLS(sm4)
+	} else {
+		boring.Unreachable()
+		aead, err = cipher.NewGCM(sm4)
+	}
+	if err != nil {
+		panic(err)
+	}
+
+	ret := &prefixNonceAEAD{aead: aead}
+	copy(ret.nonce[:], noncePrefix)
+	return ret
+}
+
 func aeadAESGCMTLS13(key, nonceMask []byte) aead {
 	if len(nonceMask) != aeadNonceLength {
 		panic("tls: internal error: wrong nonce length")
@@ -713,6 +749,9 @@ const (
 	TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384       uint16 = 0xc02c
 	TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256   uint16 = 0xcca8
 	TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256 uint16 = 0xcca9
+
+	// GB/T 38636-2020 cipher suites.
+	RSA_SM4_GCM_SHA256 uint16 = 0xe05a
 
 	// TLS 1.3 cipher suites.
 	TLS_AES_128_GCM_SHA256       uint16 = 0x1301

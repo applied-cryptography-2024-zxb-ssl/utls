@@ -1320,6 +1320,10 @@ func BenchmarkHandshakeServer(b *testing.B) {
 		benchmarkHandshakeServer(b, VersionTLS12, TLS_RSA_WITH_AES_128_GCM_SHA256,
 			0, testRSACertificate, testRSAPrivateKey)
 	})
+	b.Run("SM4-GCM", func(b *testing.B) {
+		benchmarkHandshakeServer(b, VersionTLS12, RSA_SM4_GCM_SHA256,
+			0, testRSACertificate, testRSAPrivateKey)
+	})
 	b.Run("ECDHE-P256-RSA", func(b *testing.B) {
 		b.Run("TLSv13", func(b *testing.B) {
 			benchmarkHandshakeServer(b, VersionTLS13, TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,
