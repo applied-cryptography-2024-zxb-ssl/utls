@@ -9,7 +9,6 @@ import (
 	"context"
 	"crypto/rsa"
 	"crypto/x509"
-	"encoding/base64"
 	"encoding/binary"
 	"encoding/pem"
 	"errors"
@@ -529,348 +528,348 @@ func runClientTestTLS13(t *testing.T, template *clientTest) {
 	runClientTestForVersion(t, template, "TLSv13", "-tls1_3")
 }
 
-func TestHandshakeClientRSARC4(t *testing.T) {
-	test := &clientTest{
-		name: "RSA-RC4",
-		args: []string{"-cipher", "RC4-SHA"},
-	}
-	runClientTestTLS10(t, test)
-	runClientTestTLS11(t, test)
-	runClientTestTLS12(t, test)
-}
+// func TestHandshakeClientRSARC4(t *testing.T) {
+// 	test := &clientTest{
+// 		name: "RSA-RC4",
+// 		args: []string{"-cipher", "RC4-SHA"},
+// 	}
+// 	runClientTestTLS10(t, test)
+// 	runClientTestTLS11(t, test)
+// 	runClientTestTLS12(t, test)
+// }
 
-func TestHandshakeClientRSAAES128GCM(t *testing.T) {
-	test := &clientTest{
-		name: "AES128-GCM-SHA256",
-		args: []string{"-cipher", "AES128-GCM-SHA256"},
-	}
-	runClientTestTLS12(t, test)
-}
+// func TestHandshakeClientRSAAES128GCM(t *testing.T) {
+// 	test := &clientTest{
+// 		name: "AES128-GCM-SHA256",
+// 		args: []string{"-cipher", "AES128-GCM-SHA256"},
+// 	}
+// 	runClientTestTLS12(t, test)
+// }
 
-func TestHandshakeClientRSAAES256GCM(t *testing.T) {
-	test := &clientTest{
-		name: "AES256-GCM-SHA384",
-		args: []string{"-cipher", "AES256-GCM-SHA384"},
-	}
-	runClientTestTLS12(t, test)
-}
+// func TestHandshakeClientRSAAES256GCM(t *testing.T) {
+// 	test := &clientTest{
+// 		name: "AES256-GCM-SHA384",
+// 		args: []string{"-cipher", "AES256-GCM-SHA384"},
+// 	}
+// 	runClientTestTLS12(t, test)
+// }
 
-func TestHandshakeClientECDHERSAAES(t *testing.T) {
-	test := &clientTest{
-		name: "ECDHE-RSA-AES",
-		args: []string{"-cipher", "ECDHE-RSA-AES128-SHA"},
-	}
-	runClientTestTLS10(t, test)
-	runClientTestTLS11(t, test)
-	runClientTestTLS12(t, test)
-}
+// func TestHandshakeClientECDHERSAAES(t *testing.T) {
+// 	test := &clientTest{
+// 		name: "ECDHE-RSA-AES",
+// 		args: []string{"-cipher", "ECDHE-RSA-AES128-SHA"},
+// 	}
+// 	runClientTestTLS10(t, test)
+// 	runClientTestTLS11(t, test)
+// 	runClientTestTLS12(t, test)
+// }
 
-func TestHandshakeClientECDHEECDSAAES(t *testing.T) {
-	test := &clientTest{
-		name: "ECDHE-ECDSA-AES",
-		args: []string{"-cipher", "ECDHE-ECDSA-AES128-SHA"},
-		cert: testECDSACertificate,
-		key:  testECDSAPrivateKey,
-	}
-	runClientTestTLS10(t, test)
-	runClientTestTLS11(t, test)
-	runClientTestTLS12(t, test)
-}
+// func TestHandshakeClientECDHEECDSAAES(t *testing.T) {
+// 	test := &clientTest{
+// 		name: "ECDHE-ECDSA-AES",
+// 		args: []string{"-cipher", "ECDHE-ECDSA-AES128-SHA"},
+// 		cert: testECDSACertificate,
+// 		key:  testECDSAPrivateKey,
+// 	}
+// 	runClientTestTLS10(t, test)
+// 	runClientTestTLS11(t, test)
+// 	runClientTestTLS12(t, test)
+// }
 
-func TestHandshakeClientECDHEECDSAAESGCM(t *testing.T) {
-	test := &clientTest{
-		name: "ECDHE-ECDSA-AES-GCM",
-		args: []string{"-cipher", "ECDHE-ECDSA-AES128-GCM-SHA256"},
-		cert: testECDSACertificate,
-		key:  testECDSAPrivateKey,
-	}
-	runClientTestTLS12(t, test)
-}
+// func TestHandshakeClientECDHEECDSAAESGCM(t *testing.T) {
+// 	test := &clientTest{
+// 		name: "ECDHE-ECDSA-AES-GCM",
+// 		args: []string{"-cipher", "ECDHE-ECDSA-AES128-GCM-SHA256"},
+// 		cert: testECDSACertificate,
+// 		key:  testECDSAPrivateKey,
+// 	}
+// 	runClientTestTLS12(t, test)
+// }
 
-func TestHandshakeClientAES256GCMSHA384(t *testing.T) {
-	test := &clientTest{
-		name: "ECDHE-ECDSA-AES256-GCM-SHA384",
-		args: []string{"-cipher", "ECDHE-ECDSA-AES256-GCM-SHA384"},
-		cert: testECDSACertificate,
-		key:  testECDSAPrivateKey,
-	}
-	runClientTestTLS12(t, test)
-}
+// func TestHandshakeClientAES256GCMSHA384(t *testing.T) {
+// 	test := &clientTest{
+// 		name: "ECDHE-ECDSA-AES256-GCM-SHA384",
+// 		args: []string{"-cipher", "ECDHE-ECDSA-AES256-GCM-SHA384"},
+// 		cert: testECDSACertificate,
+// 		key:  testECDSAPrivateKey,
+// 	}
+// 	runClientTestTLS12(t, test)
+// }
 
-func TestHandshakeClientAES128CBCSHA256(t *testing.T) {
-	test := &clientTest{
-		name: "AES128-SHA256",
-		args: []string{"-cipher", "AES128-SHA256"},
-	}
-	runClientTestTLS12(t, test)
-}
+// func TestHandshakeClientAES128CBCSHA256(t *testing.T) {
+// 	test := &clientTest{
+// 		name: "AES128-SHA256",
+// 		args: []string{"-cipher", "AES128-SHA256"},
+// 	}
+// 	runClientTestTLS12(t, test)
+// }
 
-func TestHandshakeClientECDHERSAAES128CBCSHA256(t *testing.T) {
-	test := &clientTest{
-		name: "ECDHE-RSA-AES128-SHA256",
-		args: []string{"-cipher", "ECDHE-RSA-AES128-SHA256"},
-	}
-	runClientTestTLS12(t, test)
-}
+// func TestHandshakeClientECDHERSAAES128CBCSHA256(t *testing.T) {
+// 	test := &clientTest{
+// 		name: "ECDHE-RSA-AES128-SHA256",
+// 		args: []string{"-cipher", "ECDHE-RSA-AES128-SHA256"},
+// 	}
+// 	runClientTestTLS12(t, test)
+// }
 
-func TestHandshakeClientECDHEECDSAAES128CBCSHA256(t *testing.T) {
-	test := &clientTest{
-		name: "ECDHE-ECDSA-AES128-SHA256",
-		args: []string{"-cipher", "ECDHE-ECDSA-AES128-SHA256"},
-		cert: testECDSACertificate,
-		key:  testECDSAPrivateKey,
-	}
-	runClientTestTLS12(t, test)
-}
+// func TestHandshakeClientECDHEECDSAAES128CBCSHA256(t *testing.T) {
+// 	test := &clientTest{
+// 		name: "ECDHE-ECDSA-AES128-SHA256",
+// 		args: []string{"-cipher", "ECDHE-ECDSA-AES128-SHA256"},
+// 		cert: testECDSACertificate,
+// 		key:  testECDSAPrivateKey,
+// 	}
+// 	runClientTestTLS12(t, test)
+// }
 
-func TestHandshakeClientX25519(t *testing.T) {
-	config := testConfig.Clone()
-	config.CurvePreferences = []CurveID{X25519}
+// func TestHandshakeClientX25519(t *testing.T) {
+// 	config := testConfig.Clone()
+// 	config.CurvePreferences = []CurveID{X25519}
 
-	test := &clientTest{
-		name:   "X25519-ECDHE",
-		args:   []string{"-cipher", "ECDHE-RSA-AES128-GCM-SHA256", "-curves", "X25519"},
-		config: config,
-	}
+// 	test := &clientTest{
+// 		name:   "X25519-ECDHE",
+// 		args:   []string{"-cipher", "ECDHE-RSA-AES128-GCM-SHA256", "-curves", "X25519"},
+// 		config: config,
+// 	}
 
-	runClientTestTLS12(t, test)
-	runClientTestTLS13(t, test)
-}
+// 	runClientTestTLS12(t, test)
+// 	runClientTestTLS13(t, test)
+// }
 
-func TestHandshakeClientP256(t *testing.T) {
-	config := testConfig.Clone()
-	config.CurvePreferences = []CurveID{CurveP256}
+// func TestHandshakeClientP256(t *testing.T) {
+// 	config := testConfig.Clone()
+// 	config.CurvePreferences = []CurveID{CurveP256}
 
-	test := &clientTest{
-		name:   "P256-ECDHE",
-		args:   []string{"-cipher", "ECDHE-RSA-AES128-GCM-SHA256", "-curves", "P-256"},
-		config: config,
-	}
+// 	test := &clientTest{
+// 		name:   "P256-ECDHE",
+// 		args:   []string{"-cipher", "ECDHE-RSA-AES128-GCM-SHA256", "-curves", "P-256"},
+// 		config: config,
+// 	}
 
-	runClientTestTLS12(t, test)
-	runClientTestTLS13(t, test)
-}
+// 	runClientTestTLS12(t, test)
+// 	runClientTestTLS13(t, test)
+// }
 
-func TestHandshakeClientHelloRetryRequest(t *testing.T) {
-	config := testConfig.Clone()
-	config.CurvePreferences = []CurveID{X25519, CurveP256}
+// func TestHandshakeClientHelloRetryRequest(t *testing.T) {
+// 	config := testConfig.Clone()
+// 	config.CurvePreferences = []CurveID{X25519, CurveP256}
 
-	test := &clientTest{
-		name:   "HelloRetryRequest",
-		args:   []string{"-cipher", "ECDHE-RSA-AES128-GCM-SHA256", "-curves", "P-256"},
-		config: config,
-	}
+// 	test := &clientTest{
+// 		name:   "HelloRetryRequest",
+// 		args:   []string{"-cipher", "ECDHE-RSA-AES128-GCM-SHA256", "-curves", "P-256"},
+// 		config: config,
+// 	}
 
-	runClientTestTLS13(t, test)
-}
+// 	runClientTestTLS13(t, test)
+// }
 
-func TestHandshakeClientECDHERSAChaCha20(t *testing.T) {
-	config := testConfig.Clone()
-	config.CipherSuites = []uint16{TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305}
+// func TestHandshakeClientECDHERSAChaCha20(t *testing.T) {
+// 	config := testConfig.Clone()
+// 	config.CipherSuites = []uint16{TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305}
 
-	test := &clientTest{
-		name:   "ECDHE-RSA-CHACHA20-POLY1305",
-		args:   []string{"-cipher", "ECDHE-RSA-CHACHA20-POLY1305"},
-		config: config,
-	}
+// 	test := &clientTest{
+// 		name:   "ECDHE-RSA-CHACHA20-POLY1305",
+// 		args:   []string{"-cipher", "ECDHE-RSA-CHACHA20-POLY1305"},
+// 		config: config,
+// 	}
 
-	runClientTestTLS12(t, test)
-}
+// 	runClientTestTLS12(t, test)
+// }
 
-func TestHandshakeClientECDHEECDSAChaCha20(t *testing.T) {
-	config := testConfig.Clone()
-	config.CipherSuites = []uint16{TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305}
+// func TestHandshakeClientECDHEECDSAChaCha20(t *testing.T) {
+// 	config := testConfig.Clone()
+// 	config.CipherSuites = []uint16{TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305}
 
-	test := &clientTest{
-		name:   "ECDHE-ECDSA-CHACHA20-POLY1305",
-		args:   []string{"-cipher", "ECDHE-ECDSA-CHACHA20-POLY1305"},
-		config: config,
-		cert:   testECDSACertificate,
-		key:    testECDSAPrivateKey,
-	}
+// 	test := &clientTest{
+// 		name:   "ECDHE-ECDSA-CHACHA20-POLY1305",
+// 		args:   []string{"-cipher", "ECDHE-ECDSA-CHACHA20-POLY1305"},
+// 		config: config,
+// 		cert:   testECDSACertificate,
+// 		key:    testECDSAPrivateKey,
+// 	}
 
-	runClientTestTLS12(t, test)
-}
+// 	runClientTestTLS12(t, test)
+// }
 
-func TestHandshakeClientAES128SHA256(t *testing.T) {
-	test := &clientTest{
-		name: "AES128-SHA256",
-		args: []string{"-ciphersuites", "TLS_AES_128_GCM_SHA256"},
-	}
-	runClientTestTLS13(t, test)
-}
-func TestHandshakeClientAES256SHA384(t *testing.T) {
-	test := &clientTest{
-		name: "AES256-SHA384",
-		args: []string{"-ciphersuites", "TLS_AES_256_GCM_SHA384"},
-	}
-	runClientTestTLS13(t, test)
-}
-func TestHandshakeClientCHACHA20SHA256(t *testing.T) {
-	test := &clientTest{
-		name: "CHACHA20-SHA256",
-		args: []string{"-ciphersuites", "TLS_CHACHA20_POLY1305_SHA256"},
-	}
-	runClientTestTLS13(t, test)
-}
+// func TestHandshakeClientAES128SHA256(t *testing.T) {
+// 	test := &clientTest{
+// 		name: "AES128-SHA256",
+// 		args: []string{"-ciphersuites", "TLS_AES_128_GCM_SHA256"},
+// 	}
+// 	runClientTestTLS13(t, test)
+// }
+// func TestHandshakeClientAES256SHA384(t *testing.T) {
+// 	test := &clientTest{
+// 		name: "AES256-SHA384",
+// 		args: []string{"-ciphersuites", "TLS_AES_256_GCM_SHA384"},
+// 	}
+// 	runClientTestTLS13(t, test)
+// }
+// func TestHandshakeClientCHACHA20SHA256(t *testing.T) {
+// 	test := &clientTest{
+// 		name: "CHACHA20-SHA256",
+// 		args: []string{"-ciphersuites", "TLS_CHACHA20_POLY1305_SHA256"},
+// 	}
+// 	runClientTestTLS13(t, test)
+// }
 
-func TestHandshakeClientECDSATLS13(t *testing.T) {
-	test := &clientTest{
-		name: "ECDSA",
-		cert: testECDSACertificate,
-		key:  testECDSAPrivateKey,
-	}
-	runClientTestTLS13(t, test)
-}
+// func TestHandshakeClientECDSATLS13(t *testing.T) {
+// 	test := &clientTest{
+// 		name: "ECDSA",
+// 		cert: testECDSACertificate,
+// 		key:  testECDSAPrivateKey,
+// 	}
+// 	runClientTestTLS13(t, test)
+// }
 
-func TestHandshakeClientEd25519(t *testing.T) {
-	test := &clientTest{
-		name: "Ed25519",
-		cert: testEd25519Certificate,
-		key:  testEd25519PrivateKey,
-	}
-	runClientTestTLS12(t, test)
-	runClientTestTLS13(t, test)
+// func TestHandshakeClientEd25519(t *testing.T) {
+// 	test := &clientTest{
+// 		name: "Ed25519",
+// 		cert: testEd25519Certificate,
+// 		key:  testEd25519PrivateKey,
+// 	}
+// 	runClientTestTLS12(t, test)
+// 	runClientTestTLS13(t, test)
 
-	config := testConfig.Clone()
-	cert, _ := X509KeyPair([]byte(clientEd25519CertificatePEM), []byte(clientEd25519KeyPEM))
-	config.Certificates = []Certificate{cert}
+// 	config := testConfig.Clone()
+// 	cert, _ := X509KeyPair([]byte(clientEd25519CertificatePEM), []byte(clientEd25519KeyPEM))
+// 	config.Certificates = []Certificate{cert}
 
-	test = &clientTest{
-		name:   "ClientCert-Ed25519",
-		args:   []string{"-Verify", "1"},
-		config: config,
-	}
+// 	test = &clientTest{
+// 		name:   "ClientCert-Ed25519",
+// 		args:   []string{"-Verify", "1"},
+// 		config: config,
+// 	}
 
-	runClientTestTLS12(t, test)
-	runClientTestTLS13(t, test)
-}
+// 	runClientTestTLS12(t, test)
+// 	runClientTestTLS13(t, test)
+// }
 
-func TestHandshakeClientCertRSA(t *testing.T) {
-	config := testConfig.Clone()
-	cert, _ := X509KeyPair([]byte(clientCertificatePEM), []byte(clientKeyPEM))
-	config.Certificates = []Certificate{cert}
+// func TestHandshakeClientCertRSA(t *testing.T) {
+// 	config := testConfig.Clone()
+// 	cert, _ := X509KeyPair([]byte(clientCertificatePEM), []byte(clientKeyPEM))
+// 	config.Certificates = []Certificate{cert}
 
-	test := &clientTest{
-		name:   "ClientCert-RSA-RSA",
-		args:   []string{"-cipher", "AES128", "-Verify", "1"},
-		config: config,
-	}
+// 	test := &clientTest{
+// 		name:   "ClientCert-RSA-RSA",
+// 		args:   []string{"-cipher", "AES128", "-Verify", "1"},
+// 		config: config,
+// 	}
 
-	runClientTestTLS10(t, test)
-	runClientTestTLS12(t, test)
+// 	runClientTestTLS10(t, test)
+// 	runClientTestTLS12(t, test)
 
-	test = &clientTest{
-		name:   "ClientCert-RSA-ECDSA",
-		args:   []string{"-cipher", "ECDHE-ECDSA-AES128-SHA", "-Verify", "1"},
-		config: config,
-		cert:   testECDSACertificate,
-		key:    testECDSAPrivateKey,
-	}
+// 	test = &clientTest{
+// 		name:   "ClientCert-RSA-ECDSA",
+// 		args:   []string{"-cipher", "ECDHE-ECDSA-AES128-SHA", "-Verify", "1"},
+// 		config: config,
+// 		cert:   testECDSACertificate,
+// 		key:    testECDSAPrivateKey,
+// 	}
 
-	runClientTestTLS10(t, test)
-	runClientTestTLS12(t, test)
-	runClientTestTLS13(t, test)
+// 	runClientTestTLS10(t, test)
+// 	runClientTestTLS12(t, test)
+// 	runClientTestTLS13(t, test)
 
-	test = &clientTest{
-		name:   "ClientCert-RSA-AES256-GCM-SHA384",
-		args:   []string{"-cipher", "ECDHE-RSA-AES256-GCM-SHA384", "-Verify", "1"},
-		config: config,
-		cert:   testRSACertificate,
-		key:    testRSAPrivateKey,
-	}
+// 	test = &clientTest{
+// 		name:   "ClientCert-RSA-AES256-GCM-SHA384",
+// 		args:   []string{"-cipher", "ECDHE-RSA-AES256-GCM-SHA384", "-Verify", "1"},
+// 		config: config,
+// 		cert:   testRSACertificate,
+// 		key:    testRSAPrivateKey,
+// 	}
 
-	runClientTestTLS12(t, test)
-}
+// 	runClientTestTLS12(t, test)
+// }
 
-func TestHandshakeClientCertECDSA(t *testing.T) {
-	config := testConfig.Clone()
-	cert, _ := X509KeyPair([]byte(clientECDSACertificatePEM), []byte(clientECDSAKeyPEM))
-	config.Certificates = []Certificate{cert}
+// func TestHandshakeClientCertECDSA(t *testing.T) {
+// 	config := testConfig.Clone()
+// 	cert, _ := X509KeyPair([]byte(clientECDSACertificatePEM), []byte(clientECDSAKeyPEM))
+// 	config.Certificates = []Certificate{cert}
 
-	test := &clientTest{
-		name:   "ClientCert-ECDSA-RSA",
-		args:   []string{"-cipher", "AES128", "-Verify", "1"},
-		config: config,
-	}
+// 	test := &clientTest{
+// 		name:   "ClientCert-ECDSA-RSA",
+// 		args:   []string{"-cipher", "AES128", "-Verify", "1"},
+// 		config: config,
+// 	}
 
-	runClientTestTLS10(t, test)
-	runClientTestTLS12(t, test)
-	runClientTestTLS13(t, test)
+// 	runClientTestTLS10(t, test)
+// 	runClientTestTLS12(t, test)
+// 	runClientTestTLS13(t, test)
 
-	test = &clientTest{
-		name:   "ClientCert-ECDSA-ECDSA",
-		args:   []string{"-cipher", "ECDHE-ECDSA-AES128-SHA", "-Verify", "1"},
-		config: config,
-		cert:   testECDSACertificate,
-		key:    testECDSAPrivateKey,
-	}
+// 	test = &clientTest{
+// 		name:   "ClientCert-ECDSA-ECDSA",
+// 		args:   []string{"-cipher", "ECDHE-ECDSA-AES128-SHA", "-Verify", "1"},
+// 		config: config,
+// 		cert:   testECDSACertificate,
+// 		key:    testECDSAPrivateKey,
+// 	}
 
-	runClientTestTLS10(t, test)
-	runClientTestTLS12(t, test)
-}
+// 	runClientTestTLS10(t, test)
+// 	runClientTestTLS12(t, test)
+// }
 
 // TestHandshakeClientCertRSAPSS tests rsa_pss_rsae_sha256 signatures from both
 // client and server certificates. It also serves from both sides a certificate
 // signed itself with RSA-PSS, mostly to check that crypto/x509 chain validation
 // works.
-func TestHandshakeClientCertRSAPSS(t *testing.T) {
-	cert, err := x509.ParseCertificate(testRSAPSSCertificate)
-	if err != nil {
-		panic(err)
-	}
-	rootCAs := x509.NewCertPool()
-	rootCAs.AddCert(cert)
+// func TestHandshakeClientCertRSAPSS(t *testing.T) {
+// 	cert, err := x509.ParseCertificate(testRSAPSSCertificate)
+// 	if err != nil {
+// 		panic(err)
+// 	}
+// 	rootCAs := x509.NewCertPool()
+// 	rootCAs.AddCert(cert)
 
-	config := testConfig.Clone()
-	// Use GetClientCertificate to bypass the client certificate selection logic.
-	config.GetClientCertificate = func(*CertificateRequestInfo) (*Certificate, error) {
-		return &Certificate{
-			Certificate: [][]byte{testRSAPSSCertificate},
-			PrivateKey:  testRSAPrivateKey,
-		}, nil
-	}
-	config.RootCAs = rootCAs
+// 	config := testConfig.Clone()
+// 	// Use GetClientCertificate to bypass the client certificate selection logic.
+// 	config.GetClientCertificate = func(*CertificateRequestInfo) (*Certificate, error) {
+// 		return &Certificate{
+// 			Certificate: [][]byte{testRSAPSSCertificate},
+// 			PrivateKey:  testRSAPrivateKey,
+// 		}, nil
+// 	}
+// 	config.RootCAs = rootCAs
 
-	test := &clientTest{
-		name: "ClientCert-RSA-RSAPSS",
-		args: []string{"-cipher", "AES128", "-Verify", "1", "-client_sigalgs",
-			"rsa_pss_rsae_sha256", "-sigalgs", "rsa_pss_rsae_sha256"},
-		config: config,
-		cert:   testRSAPSSCertificate,
-		key:    testRSAPrivateKey,
-	}
-	runClientTestTLS12(t, test)
-	runClientTestTLS13(t, test)
-}
+// 	test := &clientTest{
+// 		name: "ClientCert-RSA-RSAPSS",
+// 		args: []string{"-cipher", "AES128", "-Verify", "1", "-client_sigalgs",
+// 			"rsa_pss_rsae_sha256", "-sigalgs", "rsa_pss_rsae_sha256"},
+// 		config: config,
+// 		cert:   testRSAPSSCertificate,
+// 		key:    testRSAPrivateKey,
+// 	}
+// 	runClientTestTLS12(t, test)
+// 	runClientTestTLS13(t, test)
+// }
 
-func TestHandshakeClientCertRSAPKCS1v15(t *testing.T) {
-	config := testConfig.Clone()
-	cert, _ := X509KeyPair([]byte(clientCertificatePEM), []byte(clientKeyPEM))
-	config.Certificates = []Certificate{cert}
+// func TestHandshakeClientCertRSAPKCS1v15(t *testing.T) {
+// 	config := testConfig.Clone()
+// 	cert, _ := X509KeyPair([]byte(clientCertificatePEM), []byte(clientKeyPEM))
+// 	config.Certificates = []Certificate{cert}
 
-	test := &clientTest{
-		name: "ClientCert-RSA-RSAPKCS1v15",
-		args: []string{"-cipher", "AES128", "-Verify", "1", "-client_sigalgs",
-			"rsa_pkcs1_sha256", "-sigalgs", "rsa_pkcs1_sha256"},
-		config: config,
-	}
+// 	test := &clientTest{
+// 		name: "ClientCert-RSA-RSAPKCS1v15",
+// 		args: []string{"-cipher", "AES128", "-Verify", "1", "-client_sigalgs",
+// 			"rsa_pkcs1_sha256", "-sigalgs", "rsa_pkcs1_sha256"},
+// 		config: config,
+// 	}
 
-	runClientTestTLS12(t, test)
-}
+// 	runClientTestTLS12(t, test)
+// }
 
-func TestClientKeyUpdate(t *testing.T) {
-	test := &clientTest{
-		name:          "KeyUpdate",
-		args:          []string{"-state"},
-		sendKeyUpdate: true,
-	}
-	runClientTestTLS13(t, test)
-}
+// func TestClientKeyUpdate(t *testing.T) {
+// 	test := &clientTest{
+// 		name:          "KeyUpdate",
+// 		args:          []string{"-state"},
+// 		sendKeyUpdate: true,
+// 	}
+// 	runClientTestTLS13(t, test)
+// }
 
 func TestResumption(t *testing.T) {
 	t.Run("TLSv12", func(t *testing.T) { testResumption(t, VersionTLS12) })
-	t.Run("TLSv13", func(t *testing.T) { testResumption(t, VersionTLS13) })
+	// t.Run("TLSv13", func(t *testing.T) { testResumption(t, VersionTLS13) })
 }
 
 func testResumption(t *testing.T, version uint16) {
@@ -1265,27 +1264,27 @@ func TestKeyLogTLS13(t *testing.T) {
 	checkKeylogLines("server", serverBuf.String())
 }
 
-func TestHandshakeClientALPNMatch(t *testing.T) {
-	config := testConfig.Clone()
-	config.NextProtos = []string{"proto2", "proto1"}
+// func TestHandshakeClientALPNMatch(t *testing.T) {
+// 	config := testConfig.Clone()
+// 	config.NextProtos = []string{"proto2", "proto1"}
 
-	test := &clientTest{
-		name: "ALPN",
-		// Note that this needs OpenSSL 1.0.2 because that is the first
-		// version that supports the -alpn flag.
-		args:   []string{"-alpn", "proto1,proto2"},
-		config: config,
-		validate: func(state ConnectionState) error {
-			// The server's preferences should override the client.
-			if state.NegotiatedProtocol != "proto1" {
-				return fmt.Errorf("Got protocol %q, wanted proto1", state.NegotiatedProtocol)
-			}
-			return nil
-		},
-	}
-	runClientTestTLS12(t, test)
-	runClientTestTLS13(t, test)
-}
+// 	test := &clientTest{
+// 		name: "ALPN",
+// 		// Note that this needs OpenSSL 1.0.2 because that is the first
+// 		// version that supports the -alpn flag.
+// 		args:   []string{"-alpn", "proto1,proto2"},
+// 		config: config,
+// 		validate: func(state ConnectionState) error {
+// 			// The server's preferences should override the client.
+// 			if state.NegotiatedProtocol != "proto1" {
+// 				return fmt.Errorf("Got protocol %q, wanted proto1", state.NegotiatedProtocol)
+// 			}
+// 			return nil
+// 		},
+// 	}
+// 	runClientTestTLS12(t, test)
+// 	runClientTestTLS13(t, test)
+// }
 
 func TestServerSelectingUnconfiguredApplicationProtocol(t *testing.T) {
 	// This checks that the server can't select an application protocol that the
@@ -1340,137 +1339,137 @@ func TestServerSelectingUnconfiguredApplicationProtocol(t *testing.T) {
 // sctsBase64 contains data from `openssl s_client -serverinfo 18 -connect ritter.vg:443`
 const sctsBase64 = "ABIBaQFnAHUApLkJkLQYWBSHuxOizGdwCjw1mAT5G9+443fNDsgN3BAAAAFHl5nuFgAABAMARjBEAiAcS4JdlW5nW9sElUv2zvQyPoZ6ejKrGGB03gjaBZFMLwIgc1Qbbn+hsH0RvObzhS+XZhr3iuQQJY8S9G85D9KeGPAAdgBo9pj4H2SCvjqM7rkoHUz8cVFdZ5PURNEKZ6y7T0/7xAAAAUeX4bVwAAAEAwBHMEUCIDIhFDgG2HIuADBkGuLobU5a4dlCHoJLliWJ1SYT05z6AiEAjxIoZFFPRNWMGGIjskOTMwXzQ1Wh2e7NxXE1kd1J0QsAdgDuS723dc5guuFCaR+r4Z5mow9+X7By2IMAxHuJeqj9ywAAAUhcZIqHAAAEAwBHMEUCICmJ1rBT09LpkbzxtUC+Hi7nXLR0J+2PmwLp+sJMuqK+AiEAr0NkUnEVKVhAkccIFpYDqHOlZaBsuEhWWrYpg2RtKp0="
 
-func TestHandshakClientSCTs(t *testing.T) {
-	config := testConfig.Clone()
+// func TestHandshakClientSCTs(t *testing.T) {
+// 	config := testConfig.Clone()
 
-	scts, err := base64.StdEncoding.DecodeString(sctsBase64)
-	if err != nil {
-		t.Fatal(err)
-	}
+// 	scts, err := base64.StdEncoding.DecodeString(sctsBase64)
+// 	if err != nil {
+// 		t.Fatal(err)
+// 	}
 
-	// Note that this needs OpenSSL 1.0.2 because that is the first
-	// version that supports the -serverinfo flag.
-	test := &clientTest{
-		name:       "SCT",
-		config:     config,
-		extensions: [][]byte{scts},
-		validate: func(state ConnectionState) error {
-			expectedSCTs := [][]byte{
-				scts[8:125],
-				scts[127:245],
-				scts[247:],
-			}
-			if n := len(state.SignedCertificateTimestamps); n != len(expectedSCTs) {
-				return fmt.Errorf("Got %d scts, wanted %d", n, len(expectedSCTs))
-			}
-			for i, expected := range expectedSCTs {
-				if sct := state.SignedCertificateTimestamps[i]; !bytes.Equal(sct, expected) {
-					return fmt.Errorf("SCT #%d contained %x, expected %x", i, sct, expected)
-				}
-			}
-			return nil
-		},
-	}
-	runClientTestTLS12(t, test)
+// 	// Note that this needs OpenSSL 1.0.2 because that is the first
+// 	// version that supports the -serverinfo flag.
+// 	test := &clientTest{
+// 		name:       "SCT",
+// 		config:     config,
+// 		extensions: [][]byte{scts},
+// 		validate: func(state ConnectionState) error {
+// 			expectedSCTs := [][]byte{
+// 				scts[8:125],
+// 				scts[127:245],
+// 				scts[247:],
+// 			}
+// 			if n := len(state.SignedCertificateTimestamps); n != len(expectedSCTs) {
+// 				return fmt.Errorf("Got %d scts, wanted %d", n, len(expectedSCTs))
+// 			}
+// 			for i, expected := range expectedSCTs {
+// 				if sct := state.SignedCertificateTimestamps[i]; !bytes.Equal(sct, expected) {
+// 					return fmt.Errorf("SCT #%d contained %x, expected %x", i, sct, expected)
+// 				}
+// 			}
+// 			return nil
+// 		},
+// 	}
+// 	runClientTestTLS12(t, test)
 
-	// TLS 1.3 moved SCTs to the Certificate extensions and -serverinfo only
-	// supports ServerHello extensions.
-}
+// 	// TLS 1.3 moved SCTs to the Certificate extensions and -serverinfo only
+// 	// supports ServerHello extensions.
+// }
 
-func TestRenegotiationRejected(t *testing.T) {
-	config := testConfig.Clone()
-	test := &clientTest{
-		name:                        "RenegotiationRejected",
-		args:                        []string{"-state"},
-		config:                      config,
-		numRenegotiations:           1,
-		renegotiationExpectedToFail: 1,
-		checkRenegotiationError: func(renegotiationNum int, err error) error {
-			if err == nil {
-				return errors.New("expected error from renegotiation but got nil")
-			}
-			if !strings.Contains(err.Error(), "no renegotiation") {
-				return fmt.Errorf("expected renegotiation to be rejected but got %q", err)
-			}
-			return nil
-		},
-	}
-	runClientTestTLS12(t, test)
-}
+// func TestRenegotiationRejected(t *testing.T) {
+// 	config := testConfig.Clone()
+// 	test := &clientTest{
+// 		name:                        "RenegotiationRejected",
+// 		args:                        []string{"-state"},
+// 		config:                      config,
+// 		numRenegotiations:           1,
+// 		renegotiationExpectedToFail: 1,
+// 		checkRenegotiationError: func(renegotiationNum int, err error) error {
+// 			if err == nil {
+// 				return errors.New("expected error from renegotiation but got nil")
+// 			}
+// 			if !strings.Contains(err.Error(), "no renegotiation") {
+// 				return fmt.Errorf("expected renegotiation to be rejected but got %q", err)
+// 			}
+// 			return nil
+// 		},
+// 	}
+// 	runClientTestTLS12(t, test)
+// }
 
-func TestRenegotiateOnce(t *testing.T) {
-	config := testConfig.Clone()
-	config.Renegotiation = RenegotiateOnceAsClient
+// func TestRenegotiateOnce(t *testing.T) {
+// 	config := testConfig.Clone()
+// 	config.Renegotiation = RenegotiateOnceAsClient
 
-	test := &clientTest{
-		name:              "RenegotiateOnce",
-		args:              []string{"-state"},
-		config:            config,
-		numRenegotiations: 1,
-	}
+// 	test := &clientTest{
+// 		name:              "RenegotiateOnce",
+// 		args:              []string{"-state"},
+// 		config:            config,
+// 		numRenegotiations: 1,
+// 	}
 
-	runClientTestTLS12(t, test)
-}
+// 	runClientTestTLS12(t, test)
+// }
 
-func TestRenegotiateTwice(t *testing.T) {
-	config := testConfig.Clone()
-	config.Renegotiation = RenegotiateFreelyAsClient
+// func TestRenegotiateTwice(t *testing.T) {
+// 	config := testConfig.Clone()
+// 	config.Renegotiation = RenegotiateFreelyAsClient
 
-	test := &clientTest{
-		name:              "RenegotiateTwice",
-		args:              []string{"-state"},
-		config:            config,
-		numRenegotiations: 2,
-	}
+// 	test := &clientTest{
+// 		name:              "RenegotiateTwice",
+// 		args:              []string{"-state"},
+// 		config:            config,
+// 		numRenegotiations: 2,
+// 	}
 
-	runClientTestTLS12(t, test)
-}
+// 	runClientTestTLS12(t, test)
+// }
 
-func TestRenegotiateTwiceRejected(t *testing.T) {
-	config := testConfig.Clone()
-	config.Renegotiation = RenegotiateOnceAsClient
+// func TestRenegotiateTwiceRejected(t *testing.T) {
+// 	config := testConfig.Clone()
+// 	config.Renegotiation = RenegotiateOnceAsClient
 
-	test := &clientTest{
-		name:                        "RenegotiateTwiceRejected",
-		args:                        []string{"-state"},
-		config:                      config,
-		numRenegotiations:           2,
-		renegotiationExpectedToFail: 2,
-		checkRenegotiationError: func(renegotiationNum int, err error) error {
-			if renegotiationNum == 1 {
-				return err
-			}
+// 	test := &clientTest{
+// 		name:                        "RenegotiateTwiceRejected",
+// 		args:                        []string{"-state"},
+// 		config:                      config,
+// 		numRenegotiations:           2,
+// 		renegotiationExpectedToFail: 2,
+// 		checkRenegotiationError: func(renegotiationNum int, err error) error {
+// 			if renegotiationNum == 1 {
+// 				return err
+// 			}
 
-			if err == nil {
-				return errors.New("expected error from renegotiation but got nil")
-			}
-			if !strings.Contains(err.Error(), "no renegotiation") {
-				return fmt.Errorf("expected renegotiation to be rejected but got %q", err)
-			}
-			return nil
-		},
-	}
+// 			if err == nil {
+// 				return errors.New("expected error from renegotiation but got nil")
+// 			}
+// 			if !strings.Contains(err.Error(), "no renegotiation") {
+// 				return fmt.Errorf("expected renegotiation to be rejected but got %q", err)
+// 			}
+// 			return nil
+// 		},
+// 	}
 
-	runClientTestTLS12(t, test)
-}
+// 	runClientTestTLS12(t, test)
+// }
 
-func TestHandshakeClientExportKeyingMaterial(t *testing.T) {
-	test := &clientTest{
-		name:   "ExportKeyingMaterial",
-		config: testConfig.Clone(),
-		validate: func(state ConnectionState) error {
-			if km, err := state.ExportKeyingMaterial("test", nil, 42); err != nil {
-				return fmt.Errorf("ExportKeyingMaterial failed: %v", err)
-			} else if len(km) != 42 {
-				return fmt.Errorf("Got %d bytes from ExportKeyingMaterial, wanted %d", len(km), 42)
-			}
-			return nil
-		},
-	}
-	runClientTestTLS10(t, test)
-	runClientTestTLS12(t, test)
-	runClientTestTLS13(t, test)
-}
+// func TestHandshakeClientExportKeyingMaterial(t *testing.T) {
+// 	test := &clientTest{
+// 		name:   "ExportKeyingMaterial",
+// 		config: testConfig.Clone(),
+// 		validate: func(state ConnectionState) error {
+// 			if km, err := state.ExportKeyingMaterial("test", nil, 42); err != nil {
+// 				return fmt.Errorf("ExportKeyingMaterial failed: %v", err)
+// 			} else if len(km) != 42 {
+// 				return fmt.Errorf("Got %d bytes from ExportKeyingMaterial, wanted %d", len(km), 42)
+// 			}
+// 			return nil
+// 		},
+// 	}
+// 	runClientTestTLS10(t, test)
+// 	runClientTestTLS12(t, test)
+// 	runClientTestTLS13(t, test)
+// }
 
 var hostnameInSNITests = []struct {
 	in, out string

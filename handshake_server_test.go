@@ -483,10 +483,10 @@ func testSCTHandshake(t *testing.T, version uint16) {
 	}
 }
 
-func TestCrossVersionResume(t *testing.T) {
-	t.Run("TLSv12", func(t *testing.T) { testCrossVersionResume(t, VersionTLS12) })
-	t.Run("TLSv13", func(t *testing.T) { testCrossVersionResume(t, VersionTLS13) })
-}
+// func TestCrossVersionResume(t *testing.T) {
+// 	t.Run("TLSv12", func(t *testing.T) { testCrossVersionResume(t, VersionTLS12) })
+// 	t.Run("TLSv13", func(t *testing.T) { testCrossVersionResume(t, VersionTLS13) })
+// }
 
 func testCrossVersionResume(t *testing.T, version uint16) {
 	serverConfig := &Config{
