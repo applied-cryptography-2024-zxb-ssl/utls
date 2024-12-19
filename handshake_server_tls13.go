@@ -89,8 +89,22 @@ func (hs *serverHandshakeStateTLS13) handshake() error {
 	return nil
 }
 
+func filterCipherSuites(preferenceList []uint16, configSuites []uint16) []uint16 {
+	result := make([]uint16, 0, len(preferenceList))
+	for _, cipher := range preferenceList {
+		for _, configCipher := range configSuites {
+			if cipher == configCipher {
+				result = append(result, cipher)
+				break
+			}
+		}
+	}
+	return result
+}
+
 func (hs *serverHandshakeStateTLS13) processClientHello() error {
 	c := hs.c
+	config := c.config
 
 	hs.hello = new(serverHelloMsg)
 
@@ -167,6 +181,10 @@ func (hs *serverHandshakeStateTLS13) processClientHello() error {
 	}
 	if needFIPS() {
 		preferenceList = defaultCipherSuitesTLS13FIPS
+	}
+	// SM: select cipher suite from config
+	if config.CipherSuites != nil {
+		preferenceList = filterCipherSuites(preferenceList, config.CipherSuites)
 	}
 	for _, suiteID := range preferenceList {
 		hs.suite = mutualCipherSuiteTLS13(hs.clientHello.cipherSuites, suiteID)

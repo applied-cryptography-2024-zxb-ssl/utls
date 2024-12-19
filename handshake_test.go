@@ -318,9 +318,12 @@ func (zeroSource) Read(b []byte) (n int, err error) {
 }
 
 func allCipherSuites() []uint16 {
-	ids := make([]uint16, len(cipherSuites))
+	ids := make([]uint16, len(cipherSuites)+len(cipherSuitesTLS13))
 	for i, suite := range cipherSuites {
 		ids[i] = suite.id
+	}
+	for i, suite := range cipherSuitesTLS13 {
+		ids[len(cipherSuites)+i] = suite.id
 	}
 
 	return ids
