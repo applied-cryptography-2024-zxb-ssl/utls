@@ -713,6 +713,82 @@ func runClientTestTLS13(t *testing.T, template *clientTest) {
 // 	runClientTestTLS13(t, test)
 // }
 
+func TestHandshakeClientSM4GCMSM3(t *testing.T) {
+	serverConfig := testConfig.Clone()
+	serverConfig.CipherSuites = []uint16{TLS_SM4_GCM_SM3}
+
+	// generate test payload of length N
+	const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	const letters_n = len(letters)
+
+	const payload_n = 1000000
+	payload := make([]byte, payload_n)
+	for i := range payload {
+		// payload[i] = letters[rand.Intn(letters_n)]
+		payload[i] = letters[i%letters_n]
+	}
+
+	c, s := localPipe(t)
+
+	done := make(chan error)
+
+	go func() {
+		server := Server(s, serverConfig)
+		if err := server.Handshake(); err != nil {
+			panic(err)
+		}
+
+		// Server: receive payload_n bytes from client
+		var request [payload_n]byte
+		n := 0
+		for n < payload_n {
+			recv_n, _ := server.Read(request[n:])
+			if recv_n == 0 {
+				break
+			}
+			n += recv_n
+		}
+		if n != payload_n || !bytes.Equal(request[:], payload) {
+			panic(fmt.Sprintf("Server: expected %v bytes, but %v received with compare() = %v",
+				payload_n, n, bytes.Compare(request[:], payload)))
+		}
+
+		// Server: send payload_n bytes
+		n, _ = server.Write(request[:])
+		if n != payload_n {
+			panic(fmt.Sprintf("Server: sending %v bytes, %v sent successfully", payload_n, n))
+		}
+		server.Close()
+
+		done <- nil
+	}()
+
+	clientConfig := testConfig.Clone()
+	client := Client(c, clientConfig)
+
+	// Client: write some bytes to server
+	n, _ := client.Write(payload[:])
+	if n != payload_n {
+		panic(fmt.Sprintf("Client: sending %v bytes, %v sent successfully", payload_n, n))
+	}
+
+	// Client: receive payload_n bytes from server
+	var reply [payload_n]byte
+	n = 0
+	for n < payload_n {
+		recv_n, _ := io.ReadFull(client, reply[n:])
+		if recv_n == 0 {
+			break
+		}
+		n += recv_n
+	}
+	if n != payload_n || !bytes.Equal(reply[:], payload) {
+		panic(fmt.Sprintf("Client: expected %v bytes, but %v received with compare() = %v",
+			payload_n, n, bytes.Compare(reply[:], payload)))
+	}
+	c.Close()
+}
+
 // func TestHandshakeClientECDSATLS13(t *testing.T) {
 // 	test := &clientTest{
 // 		name: "ECDSA",
