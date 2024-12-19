@@ -19,7 +19,6 @@ import (
 	"hash"
 	"runtime"
 
-	"github.com/emmansun/gmsm/sm3"
 	"github.com/emmansun/gmsm/sm4"
 	"github.com/refraction-networking/utls/internal/boring"
 	"golang.org/x/sys/cpu"
@@ -203,11 +202,13 @@ type TLS13SM3 struct {
 }
 
 func (h TLS13SM3) New() hash.Hash {
-	return sm3.New()
+	// TODO: replace with sm3 method
+	return crypto.SHA256.New()
 }
 
 func (h TLS13SM3) Size() int {
-	return sm3.Size
+	// TODO: replace with sm3 method
+	return crypto.SHA256.Size()
 }
 
 // A cipherSuiteTLS13 defines only the pair of the AEAD algorithm and hash
