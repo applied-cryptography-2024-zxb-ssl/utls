@@ -715,7 +715,7 @@ func runClientTestTLS13(t *testing.T, template *clientTest) {
 
 func TestHandshakeClientSM4GCMSM3(t *testing.T) {
 	serverConfig := testConfig.Clone()
-	serverConfig.CipherSuites = []uint16{TLS_SM4_GCM_SM3}
+	serverConfig.CipherSuites = []uint16{TLS_SM4_GCM_OWNSM3} //TLS_SM4_GCM_SM3
 
 	// generate test payload of length N
 	const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
