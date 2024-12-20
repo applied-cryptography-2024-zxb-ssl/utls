@@ -22,6 +22,9 @@ import (
 	"strings"
 	"time"
 
+	// "github.com/emmansun/gmsm/sm3"
+
+
 	circlSign "github.com/cloudflare/circl/sign"
 )
 
@@ -423,10 +426,12 @@ func (c *Conn) loadSession(hello *clientHelloMsg) (
 	cipherSuiteOk := false
 	for _, offeredID := range hello.cipherSuites {
 		offeredSuite := cipherSuiteTLS13ByID(offeredID)
+		
 		if offeredSuite != nil && offeredSuite.hash == cipherSuite.hash {
 			cipherSuiteOk = true
 			break
 		}
+		
 	}
 	if !cipherSuiteOk {
 		return nil, nil, nil, nil

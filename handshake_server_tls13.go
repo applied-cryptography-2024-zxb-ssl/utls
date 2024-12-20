@@ -16,6 +16,9 @@ import (
 	"hash"
 	"io"
 	"time"
+
+	"github.com/emmansun/gmsm/sm3"
+
 )
 
 // maxClientPSKIdentities is the number of client PSK identities the server will
@@ -180,7 +183,13 @@ func (hs *serverHandshakeStateTLS13) processClientHello() error {
 	}
 	c.cipherSuite = hs.suite.id
 	hs.hello.cipherSuite = hs.suite.id
+	// alter sm3
 	hs.transcript = hs.suite.hash.New()
+	// if hs.suite.id == TLS_AES_128_GCM_SHA256 {
+	// 	hs.transcript = sm3.New()
+	// } else {
+	// 	hs.transcript = hs.suite.hash.New()
+	// }
 
 	// Pick the ECDHE group in server preference order, but give priority to
 	// groups with a key share, to avoid a HelloRetryRequest round-trip.
@@ -343,9 +352,18 @@ func (hs *serverHandshakeStateTLS13) checkForResumption() error {
 		}
 
 		pskSuite := cipherSuiteTLS13ByID(sessionState.cipherSuite)
+		// alter sm3
 		if pskSuite == nil || pskSuite.hash != hs.suite.hash {
 			continue
 		}
+		// if hs.suite.id == TLS_AES_128_GCM_SHA256{
+		// 		continue
+		// } else {
+		// 	if pskSuite == nil || pskSuite.hash != hs.suite.hash {
+		// 		continue
+		// 	}
+		// }
+		
 
 		// PSK connections don't re-establish client certificates, but carry
 		// them over in the session ticket. Ensure the presence of client certs
@@ -369,7 +387,15 @@ func (hs *serverHandshakeStateTLS13) checkForResumption() error {
 		hs.earlySecret = hs.suite.extract(sessionState.secret, nil)
 		binderKey := hs.suite.deriveSecret(hs.earlySecret, resumptionBinderLabel, nil)
 		// Clone the transcript in case a HelloRetryRequest was recorded.
+		// alter sm3
 		transcript := cloneHash(hs.transcript, hs.suite.hash)
+		// var transcript hash.Hash
+		// if hs.suite.id == TLS_AES_128_GCM_SHA256 {
+		// 	transcript = cloneHash_sm3(hs.transcript, sm3.New())
+		// } else{
+		// 	transcript = cloneHash(hs.transcript, hs.suite.hash)
+		// }
+
 		if transcript == nil {
 			c.sendAlert(alertInternalError)
 			return errors.New("tls: internal error: failed to clone hash")
@@ -390,8 +416,16 @@ func (hs *serverHandshakeStateTLS13) checkForResumption() error {
 			sessionState.EarlyData && sessionState.cipherSuite == hs.suite.id &&
 			sessionState.alpnProtocol == c.clientProtocol {
 			hs.earlyData = true
-
+			
+			// alter sm3
 			transcript := hs.suite.hash.New()
+			// var transcript hash.Hash
+			// if hs.suite.id == TLS_AES_128_GCM_SHA256 {
+			// 	transcript =  sm3.New()
+			// } else{
+			// 	transcript = hs.suite.hash.New()
+			// }
+			
 			if err := transcriptMsg(hs.clientHello, transcript); err != nil {
 				return err
 			}
@@ -417,6 +451,7 @@ func (hs *serverHandshakeStateTLS13) checkForResumption() error {
 // cloneHash uses the encoding.BinaryMarshaler and encoding.BinaryUnmarshaler
 // interfaces implemented by standard library hashes to clone the state of in
 // to a new instance of h. It returns nil if the operation fails.
+
 func cloneHash(in hash.Hash, h crypto.Hash) hash.Hash {
 	// Recreate the interface to avoid importing encoding.
 	type binaryMarshaler interface {
@@ -441,6 +476,7 @@ func cloneHash(in hash.Hash, h crypto.Hash) hash.Hash {
 	}
 	return out
 }
+
 
 func (hs *serverHandshakeStateTLS13) pickCertificate() error {
 	c := hs.c
@@ -848,9 +884,18 @@ func (c *Conn) sendSessionTicket(earlyData bool) error {
 	}
 	// ticket_nonce, which must be unique per connection, is always left at
 	// zero because we only ever send one ticket per connection.
+	//alter sm3
 	psk := suite.expandLabel(c.resumptionSecret, "resumption",
-		nil, suite.hash.Size())
-
+			nil, suite.hash.Size())
+	// var psk []byte
+	// if suite.id == TLS_AES_128_GCM_SHA256 {
+	// 	psk = suite.expandLabel(c.resumptionSecret, "resumption",
+	// 		nil, sm3.New().Size())
+	// } else {
+	// 	psk = suite.expandLabel(c.resumptionSecret, "resumption",
+	// 		nil, suite.hash.Size())
+	// }
+	
 	m := new(newSessionTicketMsgTLS13)
 
 	state, err := c.sessionState()

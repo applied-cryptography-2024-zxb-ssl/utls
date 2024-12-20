@@ -12,17 +12,20 @@ import (
 	"crypto/hmac"
 
 	// "crypto/internal/boring"
+
 	"crypto/rc4"
 	"crypto/sha1"
+
 	"crypto/sha256"
 	"fmt"
 	"hash"
 	"runtime"
 
 	"github.com/refraction-networking/utls/internal/boring"
+	"golang.org/x/crypto/chacha20poly1305"
 	"golang.org/x/sys/cpu"
 
-	"golang.org/x/crypto/chacha20poly1305"
+	"github.com/emmansun/gmsm/sm3"
 )
 
 // CipherSuite is a TLS cipher suite. Note that most functions in this package
@@ -130,6 +133,10 @@ const (
 	// suiteSHA384 indicates that the cipher suite uses SHA384 as the
 	// handshake hash.
 	suiteSHA384
+	// alter sm3
+	// suiteSM3 indicates that the cipher suite uses SM3 as the
+	// handshake hash.
+	suiteSM3
 )
 
 // A cipherSuite is a TLS 1.0–1.2 cipher suite, and defines the key exchange
@@ -161,9 +168,13 @@ var cipherSuites = []*cipherSuite{ // TODO: replace with a map, since the order 
 	{TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA, 16, 20, 16, ecdheECDSAKA, suiteECDHE | suiteECSign, cipherAES, macSHA1, nil},
 	{TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA, 32, 20, 16, ecdheRSAKA, suiteECDHE, cipherAES, macSHA1, nil},
 	{TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA, 32, 20, 16, ecdheECDSAKA, suiteECDHE | suiteECSign, cipherAES, macSHA1, nil},
-	{TLS_RSA_WITH_AES_128_GCM_SHA256, 16, 0, 4, rsaKA, suiteTLS12, nil, nil, aeadAESGCM},
+	//alter sm3
+	{TLS_RSA_WITH_AES_128_GCM_SHA256, 16, 0, 4, rsaKA, suiteTLS12 | suiteSM3 , nil, nil, aeadAESGCM},
 	{TLS_RSA_WITH_AES_256_GCM_SHA384, 32, 0, 4, rsaKA, suiteTLS12 | suiteSHA384, nil, nil, aeadAESGCM},
-	{TLS_RSA_WITH_AES_128_CBC_SHA256, 16, 32, 16, rsaKA, suiteTLS12, cipherAES, macSHA256, nil},
+	
+	//alter sm3
+	{TLS_RSA_WITH_AES_128_CBC_SHA256, 16, 32, 16, rsaKA, suiteTLS12, cipherAES, macSM3, nil}, //macSHA256
+	
 	{TLS_RSA_WITH_AES_128_CBC_SHA, 16, 20, 16, rsaKA, 0, cipherAES, macSHA1, nil},
 	{TLS_RSA_WITH_AES_256_CBC_SHA, 32, 20, 16, rsaKA, 0, cipherAES, macSHA1, nil},
 	{TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA, 24, 20, 8, ecdheRSAKA, suiteECDHE, cipher3DES, macSHA1, nil},
@@ -191,6 +202,37 @@ func selectCipherSuite(ids, supportedIDs []uint16, ok func(*cipherSuite) bool) *
 	return nil
 }
 
+
+type SM3Hash uint
+
+// HashFunc simply returns the value of h so that [Hash] implements [SignerOpts].
+func (h SM3Hash) HashFunc() SM3Hash {
+	return h
+}
+
+func (h SM3Hash) String() string {
+	return "SM3"
+}
+
+// Size returns the length, in bytes, of a digest resulting from the given hash
+// function. It doesn't require that the hash function in question be linked
+// into the program.
+func (h SM3Hash) Size() int {
+	return sm3.New().Size()
+}
+
+
+// New returns a new hash.Hash calculating the given hash function. New panics
+// if the hash function is not linked into the binary.
+func (h SM3Hash) New() hash.Hash {
+	return sm3.New()
+}
+
+// Available reports whether the given hash function is linked into the binary.
+func (h SM3Hash) Available() bool {
+	return true
+}
+
 // A cipherSuiteTLS13 defines only the pair of the AEAD algorithm and hash
 // algorithm to be used with HKDF. See RFC 8446, Appendix B.4.
 type cipherSuiteTLS13 struct {
@@ -200,8 +242,11 @@ type cipherSuiteTLS13 struct {
 	hash   crypto.Hash
 }
 
+// crypto.RegisterHash(100, sm3.New) 
+
 var cipherSuitesTLS13 = []*cipherSuiteTLS13{ // TODO: replace with a map.
-	{TLS_AES_128_GCM_SHA256, 16, aeadAESGCMTLS13, crypto.SHA256},
+	// {TLS_AES_128_GCM_SM3, 16, aeadAESGCMTLS13, crypto.SHA256}, 
+	{TLS_AES_128_GCM_SHA256, 16, aeadAESGCMTLS13, crypto.SM3},
 	{TLS_CHACHA20_POLY1305_SHA256, 32, aeadChaCha20Poly1305, crypto.SHA256},
 	{TLS_AES_256_GCM_SHA384, 32, aeadAESGCMTLS13, crypto.SHA384},
 }
@@ -454,6 +499,12 @@ func macSHA1(key []byte) hash.Hash {
 // is currently only used in disabled-by-default cipher suites.
 func macSHA256(key []byte) hash.Hash {
 	return hmac.New(sha256.New, key)
+}
+
+// macSHA256 returns a SHA-256 based MAC. This is only supported in TLS 1.2 and
+// is currently only used in disabled-by-default cipher suites.
+func macSM3(key []byte) hash.Hash {
+	return hmac.New(sm3.New, key)
 }
 
 type aead interface {

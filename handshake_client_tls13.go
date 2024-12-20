@@ -17,6 +17,8 @@ import (
 	"time"
 
 	"github.com/cloudflare/circl/kem"
+
+	"github.com/emmansun/gmsm/sm3"
 )
 
 // [uTLS SECTION START]
@@ -142,7 +144,13 @@ func (hs *clientHandshakeStateTLS13) handshake() error {
 		return err
 	}
 
+	// alter sm3
 	hs.transcript = hs.suite.hash.New()
+	// if hs.suite.hash == 100 {
+	// 	hs.transcript = sm3.New()
+	// } else {
+	// 	hs.transcript = hs.suite.hash.New()
+	// }
 
 	if err := transcriptMsg(hs.hello, hs.transcript); err != nil {
 		return err
@@ -1001,8 +1009,17 @@ func (c *Conn) handleNewSessionTicket(msg *newSessionTicketMsgTLS13) error {
 		return c.sendAlert(alertInternalError)
 	}
 
+	// alter sm3
 	psk := cipherSuite.expandLabel(c.resumptionSecret, "resumption",
-		msg.nonce, cipherSuite.hash.Size())
+			msg.nonce, cipherSuite.hash.Size())
+	// var psk []byte
+	// if cipherSuite.id == TLS_AES_128_GCM_SHA256 {
+	// 	psk = cipherSuite.expandLabel(c.resumptionSecret, "resumption",
+	// 		msg.nonce, sm3.New().Size())
+	// } else {
+	// 	psk = cipherSuite.expandLabel(c.resumptionSecret, "resumption",
+	// 		msg.nonce, cipherSuite.hash.Size())
+	// }
 
 	session, err := c.sessionState()
 	if err != nil {

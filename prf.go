@@ -14,6 +14,9 @@ import (
 	"errors"
 	"fmt"
 	"hash"
+
+	"github.com/emmansun/gmsm/sm3"
+
 )
 
 // Split a premaster secret in two as specified in RFC 4346, Section 5.
@@ -92,6 +95,8 @@ func prfAndHashForVersion(version uint16, suite *cipherSuite) (func(result, secr
 	case VersionTLS12:
 		if suite.flags&suiteSHA384 != 0 {
 			return prf12(sha512.New384), crypto.SHA384
+		} else if suite.flags&suiteSM3 != 0  { //alter sm3
+			return prf12(sm3.New), crypto.SHA384
 		}
 		return prf12(sha256.New), crypto.SHA256
 	default:
