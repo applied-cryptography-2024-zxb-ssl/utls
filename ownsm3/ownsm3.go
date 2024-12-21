@@ -1,8 +1,8 @@
 package ownsm3
 
 import (
-	"hash"
 	"encoding/binary"
+	"hash"
 )
 
 // Size the size of a SM3 checksum in bytes.
@@ -196,6 +196,37 @@ func (d *digest) Write(p []byte) (n int, err error) {
 func (d *digest) Sum(in []byte) []byte {
 	// Make a copy of d so that caller can keep writing and summing.
 	d0 := *d
+	total_len := d0.len * 8
+	remain_len := total_len % 512
+	d0.x[d0.nx] = 0x80
+	d0.nx++
+
+	if d0.nx == 64 {
+		d0.processBlock(d0.x[:])
+		d0.nx = 0
+	}
+
+	var k int
+	if remain_len+1 <= 448 {
+		k = 448 - (int(remain_len) + 1)
+	} else {
+		k = 960 - (int(remain_len) + 1)
+	}
+	k++
+	if k%8 != 0 {
+		panic("Panic in func Sum.padding\n")
+	}
+	padding := make([]byte, k/8-1)
+	d0.Write(padding)
+
+	length_bits := make([]byte, 8)
+	binary.BigEndian.PutUint64(length_bits, total_len)
+	d0.Write(length_bits)
+
+	if d0.nx != 0 {
+		panic("Panic in func Sum.final\n")
+	}
+
 	hash := d0.checkSum()
 	return append(in, hash[:]...)
 }
@@ -212,9 +243,9 @@ func (d *digest) checkSum() [32]byte {
 func Sum(data []byte) [Size]byte {
 	var d digest
 	d.Reset()
-	d.Write(data)
+	padded := pad_message(data)
+	for i := 0; i < len(padded); i += BlockSize {
+		d.processBlock(padded[i : i+BlockSize])
+	}
 	return d.checkSum()
 }
-
-
-
