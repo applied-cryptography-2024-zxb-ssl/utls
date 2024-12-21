@@ -23,6 +23,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/emmansun/gmsm/sm2"
 )
 
 const (
@@ -139,10 +141,11 @@ const (
 type CurveID uint16
 
 const (
-	CurveP256 CurveID = 23
-	CurveP384 CurveID = 24
-	CurveP521 CurveID = 25
-	X25519    CurveID = 29
+	CurveP256    CurveID = 31 // disabled
+	CurveP384    CurveID = 24
+	CurveP521    CurveID = 25
+	X25519       CurveID = 29
+	CurveP256SM2 CurveID = 31
 )
 
 // TLS 1.3 Key Share. See RFC 8446, Section 4.2.8.
@@ -1167,7 +1170,7 @@ func supportedVersionsFromMax(maxVersion uint16) []uint16 {
 	return versions
 }
 
-var defaultCurvePreferences = []CurveID{X25519, CurveP256, CurveP384, CurveP521}
+var defaultCurvePreferences = []CurveID{X25519, CurveP256SM2, CurveP384, CurveP521}
 
 func (c *Config) curvePreferences() []CurveID {
 	if needFIPS() {
@@ -1349,8 +1352,8 @@ func (chi *ClientHelloInfo) SupportsCertificate(c *Certificate) error {
 		case *ecdsa.PublicKey:
 			var curve CurveID
 			switch pub.Curve {
-			case elliptic.P256():
-				curve = CurveP256
+			case sm2.P256():
+				curve = CurveP256SM2
 			case elliptic.P384():
 				curve = CurveP384
 			case elliptic.P521():
