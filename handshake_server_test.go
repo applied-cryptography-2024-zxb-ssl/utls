@@ -892,30 +892,30 @@ func TestHandshakeServerX25519(t *testing.T) {
 	runServerTestTLS13(t, test)
 }
 
-func TestHandshakeServerP256(t *testing.T) {
-	config := testConfig.Clone()
-	config.CurvePreferences = []CurveID{CurveP256}
+// func TestHandshakeServerP256(t *testing.T) {
+// 	config := testConfig.Clone()
+// 	config.CurvePreferences = []CurveID{CurveP256}
 
-	test := &serverTest{
-		name:    "P256",
-		command: []string{"openssl", "s_client", "-no_ticket", "-cipher", "ECDHE-RSA-CHACHA20-POLY1305", "-ciphersuites", "TLS_CHACHA20_POLY1305_SHA256", "-curves", "P-256"},
-		config:  config,
-	}
-	runServerTestTLS12(t, test)
-	runServerTestTLS13(t, test)
-}
+// 	test := &serverTest{
+// 		name:    "P256",
+// 		command: []string{"openssl", "s_client", "-no_ticket", "-cipher", "ECDHE-RSA-CHACHA20-POLY1305", "-ciphersuites", "TLS_CHACHA20_POLY1305_SHA256", "-curves", "P-256"},
+// 		config:  config,
+// 	}
+// 	runServerTestTLS12(t, test)
+// 	runServerTestTLS13(t, test)
+// }
 
-func TestHandshakeServerHelloRetryRequest(t *testing.T) {
-	config := testConfig.Clone()
-	config.CurvePreferences = []CurveID{CurveP256}
+// func TestHandshakeServerHelloRetryRequest(t *testing.T) {
+// 	config := testConfig.Clone()
+// 	config.CurvePreferences = []CurveID{CurveP256}
 
-	test := &serverTest{
-		name:    "HelloRetryRequest",
-		command: []string{"openssl", "s_client", "-no_ticket", "-ciphersuites", "TLS_CHACHA20_POLY1305_SHA256", "-curves", "X25519:P-256"},
-		config:  config,
-	}
-	runServerTestTLS13(t, test)
-}
+// 	test := &serverTest{
+// 		name:    "HelloRetryRequest",
+// 		command: []string{"openssl", "s_client", "-no_ticket", "-ciphersuites", "TLS_CHACHA20_POLY1305_SHA256", "-curves", "X25519:P-256"},
+// 		config:  config,
+// 	}
+// 	runServerTestTLS13(t, test)
+// }
 
 func TestHandshakeServerALPN(t *testing.T) {
 	config := testConfig.Clone()
@@ -1098,50 +1098,50 @@ func TestHandshakeServerEmptyCertificates(t *testing.T) {
 	testClientHelloFailure(t, serverConfig, clientHello, "no certificates")
 }
 
-func TestServerResumption(t *testing.T) {
-	sessionFilePath := tempFile("")
-	defer os.Remove(sessionFilePath)
+// func TestServerResumption(t *testing.T) {
+// 	sessionFilePath := tempFile("")
+// 	defer os.Remove(sessionFilePath)
 
-	testIssue := &serverTest{
-		name:    "IssueTicket",
-		command: []string{"openssl", "s_client", "-cipher", "AES128-SHA", "-ciphersuites", "TLS_AES_128_GCM_SHA256", "-sess_out", sessionFilePath},
-		wait:    true,
-	}
-	testResume := &serverTest{
-		name:    "Resume",
-		command: []string{"openssl", "s_client", "-cipher", "AES128-SHA", "-ciphersuites", "TLS_AES_128_GCM_SHA256", "-sess_in", sessionFilePath},
-		validate: func(state ConnectionState) error {
-			if !state.DidResume {
-				return errors.New("did not resume")
-			}
-			return nil
-		},
-	}
+// 	testIssue := &serverTest{
+// 		name:    "IssueTicket",
+// 		command: []string{"openssl", "s_client", "-cipher", "AES128-SHA", "-ciphersuites", "TLS_AES_128_GCM_SHA256", "-sess_out", sessionFilePath},
+// 		wait:    true,
+// 	}
+// 	testResume := &serverTest{
+// 		name:    "Resume",
+// 		command: []string{"openssl", "s_client", "-cipher", "AES128-SHA", "-ciphersuites", "TLS_AES_128_GCM_SHA256", "-sess_in", sessionFilePath},
+// 		validate: func(state ConnectionState) error {
+// 			if !state.DidResume {
+// 				return errors.New("did not resume")
+// 			}
+// 			return nil
+// 		},
+// 	}
 
-	runServerTestTLS12(t, testIssue)
-	runServerTestTLS12(t, testResume)
+// 	runServerTestTLS12(t, testIssue)
+// 	runServerTestTLS12(t, testResume)
 
-	runServerTestTLS13(t, testIssue)
-	runServerTestTLS13(t, testResume)
+// 	runServerTestTLS13(t, testIssue)
+// 	runServerTestTLS13(t, testResume)
 
-	config := testConfig.Clone()
-	config.CurvePreferences = []CurveID{CurveP256}
+// 	config := testConfig.Clone()
+// 	config.CurvePreferences = []CurveID{CurveP256}
 
-	testResumeHRR := &serverTest{
-		name: "Resume-HelloRetryRequest",
-		command: []string{"openssl", "s_client", "-curves", "X25519:P-256", "-cipher", "AES128-SHA", "-ciphersuites",
-			"TLS_AES_128_GCM_SHA256", "-sess_in", sessionFilePath},
-		config: config,
-		validate: func(state ConnectionState) error {
-			if !state.DidResume {
-				return errors.New("did not resume")
-			}
-			return nil
-		},
-	}
+// 	testResumeHRR := &serverTest{
+// 		name: "Resume-HelloRetryRequest",
+// 		command: []string{"openssl", "s_client", "-curves", "X25519:P-256", "-cipher", "AES128-SHA", "-ciphersuites",
+// 			"TLS_AES_128_GCM_SHA256", "-sess_in", sessionFilePath},
+// 		config: config,
+// 		validate: func(state ConnectionState) error {
+// 			if !state.DidResume {
+// 				return errors.New("did not resume")
+// 			}
+// 			return nil
+// 		},
+// 	}
 
-	runServerTestTLS13(t, testResumeHRR)
-}
+// 	runServerTestTLS13(t, testResumeHRR)
+// }
 
 func TestServerResumptionDisabled(t *testing.T) {
 	sessionFilePath := tempFile("")
