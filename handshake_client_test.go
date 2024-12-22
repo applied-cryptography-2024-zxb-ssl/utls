@@ -795,13 +795,13 @@ func testHandshakeClient(t *testing.T, cipherSuites []uint16, curvePreferences [
 }
 
 func TestHandshakeClientAESGCMSHA256(t *testing.T) {
-	testHandshakeClient(t, []uint16{TLS_AES_128_GCM_SHA256}, nil)
+	testHandshakeClient(t, []uint16{TLS_AES_128_GCM_SHA256}, []CurveID{CurveP256SM2})
 }
 func TestHandshakeClientSM4GCMSM3(t *testing.T) {
-	testHandshakeClient(t, []uint16{TLS_SM4_GCM_SM3}, nil)
+	testHandshakeClient(t, []uint16{TLS_SM4_GCM_SM3}, []CurveID{CurveP256SM2})
 }
 func TestHandshakeClientSM4GCMOWNSM3(t *testing.T) {
-	testHandshakeClient(t, []uint16{TLS_SM4_GCM_OWNSM3}, nil)
+	testHandshakeClient(t, []uint16{TLS_SM4_GCM_OWNSM3}, []CurveID{CurveP256SM2})
 }
 
 // func TestHandshakeClientECDSATLS13(t *testing.T) {
