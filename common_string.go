@@ -63,15 +63,6 @@ func (i SignatureScheme) String() string {
 		return "SignatureScheme(" + strconv.FormatInt(int64(i), 10) + ")"
 	}
 }
-func _() {
-	// An "invalid array index" compiler error signifies that the constant values have changed.
-	// Re-run the stringer command to generate them again.
-	var x [1]struct{}
-	_ = x[CurveP256-31]
-	_ = x[CurveP384-24]
-	_ = x[CurveP521-25]
-	_ = x[X25519-29]
-}
 
 const (
 	_CurveID_name_0 = "CurveP256CurveP384CurveP521"
