@@ -713,15 +713,20 @@ func runClientTestTLS13(t *testing.T, template *clientTest) {
 // 	runClientTestTLS13(t, test)
 // }
 
-func TestHandshakeClientSM4GCMSM3(t *testing.T) {
+func testHandshakeClient(t *testing.T, cipherSuites []uint16, curvePreferences []CurveID) {
 	serverConfig := testConfig.Clone()
-	serverConfig.CipherSuites = []uint16{TLS_SM4_GCM_OWNSM3} //TLS_SM4_GCM_SM3
+	if cipherSuites != nil {
+		serverConfig.CipherSuites = cipherSuites
+	}
+	if curvePreferences != nil {
+		serverConfig.CurvePreferences = curvePreferences
+	}
 
 	// generate test payload of length N
 	const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	const letters_n = len(letters)
 
-	const payload_n = 1000000
+	const payload_n = 100000000
 	payload := make([]byte, payload_n)
 	for i := range payload {
 		// payload[i] = letters[rand.Intn(letters_n)]
@@ -787,6 +792,16 @@ func TestHandshakeClientSM4GCMSM3(t *testing.T) {
 			payload_n, n, bytes.Compare(reply[:], payload)))
 	}
 	c.Close()
+}
+
+func TestHandshakeClientAESGCMSHA256(t *testing.T) {
+	testHandshakeClient(t, []uint16{TLS_AES_128_GCM_SHA256}, nil)
+}
+func TestHandshakeClientSM4GCMSM3(t *testing.T) {
+	testHandshakeClient(t, []uint16{TLS_SM4_GCM_SM3}, nil)
+}
+func TestHandshakeClientSM4GCMOWNSM3(t *testing.T) {
+	testHandshakeClient(t, []uint16{TLS_SM4_GCM_OWNSM3}, nil)
 }
 
 // func TestHandshakeClientECDSATLS13(t *testing.T) {
