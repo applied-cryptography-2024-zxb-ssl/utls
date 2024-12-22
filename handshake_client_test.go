@@ -14,6 +14,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"math/big"
 	"net"
 	"os"
@@ -726,7 +727,9 @@ func testHandshakeClient(t *testing.T, cipherSuites []uint16, curvePreferences [
 	const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	const letters_n = len(letters)
 
-	const payload_n = 100000000
+	// const payload_n = 1073741824 // 1024 MB
+	const payload_n = 134217728 // 128 MB
+	// const payload_n = 16777216  // 16 MB
 	payload := make([]byte, payload_n)
 	for i := range payload {
 		// payload[i] = letters[rand.Intn(letters_n)]
@@ -768,6 +771,8 @@ func testHandshakeClient(t *testing.T, cipherSuites []uint16, curvePreferences [
 		done <- nil
 	}()
 
+	start := time.Now().UnixMilli()
+
 	clientConfig := testConfig.Clone()
 	client := Client(c, clientConfig)
 
@@ -792,6 +797,11 @@ func testHandshakeClient(t *testing.T, cipherSuites []uint16, curvePreferences [
 			payload_n, n, bytes.Compare(reply[:], payload)))
 	}
 	c.Close()
+
+	end := time.Now().UnixMilli()
+	log := fmt.Sprintf("Payload = %v MB, elapsed = %v ms, bandwidth = %v MB/s",
+		int32(payload_n/1048576), end-start, float64(2*payload_n)*1000.0/(float64(end-start)*1048576.0))
+	ioutil.WriteFile("debug.log", []byte(log), 0644)
 }
 
 func TestHandshakeClientAESGCMSHA256(t *testing.T) {
