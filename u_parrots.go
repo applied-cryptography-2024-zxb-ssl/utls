@@ -5,7 +5,6 @@
 package tls
 
 import (
-	"crypto/ecdh"
 	crand "crypto/rand"
 	"crypto/sha256"
 	"encoding/binary"
@@ -17,6 +16,8 @@ import (
 	"math/rand"
 	"sort"
 	"strconv"
+
+	"github.com/emmansun/gmsm/ecdh"
 
 	"github.com/refraction-networking/utls/dicttls"
 )

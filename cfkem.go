@@ -22,7 +22,7 @@ import (
 	"fmt"
 	"io"
 
-	"crypto/ecdh"
+	"github.com/emmansun/gmsm/ecdh"
 
 	"github.com/cloudflare/circl/kem"
 	"github.com/cloudflare/circl/kem/hybrid"

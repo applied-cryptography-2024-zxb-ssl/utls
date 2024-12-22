@@ -11,7 +11,6 @@ import (
 	"crypto"
 	"crypto/ecdsa"
 	"crypto/ed25519"
-	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha512"
@@ -142,9 +141,9 @@ type CurveID uint16
 
 const (
 	CurveP256    CurveID = 31 // disabled
-	CurveP384    CurveID = 24
-	CurveP521    CurveID = 25
-	X25519       CurveID = 29
+	CurveP384    CurveID = 31 // disabled
+	CurveP521    CurveID = 31 // disabled
+	X25519       CurveID = 31 // disabled
 	CurveP256SM2 CurveID = 31
 )
 
@@ -1170,7 +1169,7 @@ func supportedVersionsFromMax(maxVersion uint16) []uint16 {
 	return versions
 }
 
-var defaultCurvePreferences = []CurveID{X25519, CurveP256SM2, CurveP384, CurveP521}
+var defaultCurvePreferences = []CurveID{CurveP256SM2}
 
 func (c *Config) curvePreferences() []CurveID {
 	if needFIPS() {
@@ -1354,10 +1353,6 @@ func (chi *ClientHelloInfo) SupportsCertificate(c *Certificate) error {
 			switch pub.Curve {
 			case sm2.P256():
 				curve = CurveP256SM2
-			case elliptic.P384():
-				curve = CurveP384
-			case elliptic.P521():
-				curve = CurveP521
 			default:
 				return supportsRSAFallback(unsupportedCertificateError(c))
 			}

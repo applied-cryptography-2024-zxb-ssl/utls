@@ -5,12 +5,13 @@
 package tls
 
 import (
-	"crypto/ecdh"
 	"crypto/hmac"
 	"errors"
 	"fmt"
 	"hash"
 	"io"
+
+	"github.com/emmansun/gmsm/ecdh"
 
 	"golang.org/x/crypto/cryptobyte"
 	"golang.org/x/crypto/hkdf"
@@ -130,14 +131,8 @@ func generateECDHEKey(rand io.Reader, curveID CurveID) (*ecdh.PrivateKey, error)
 
 func curveForCurveID(id CurveID) (ecdh.Curve, bool) {
 	switch id {
-	case X25519:
-		return ecdh.X25519(), true
 	case CurveP256SM2:
 		return ecdh.P256(), true
-	case CurveP384:
-		return ecdh.P384(), true
-	case CurveP521:
-		return ecdh.P521(), true
 	default:
 		return nil, false
 	}
@@ -145,14 +140,8 @@ func curveForCurveID(id CurveID) (ecdh.Curve, bool) {
 
 func curveIDForCurve(curve ecdh.Curve) (CurveID, bool) {
 	switch curve {
-	case ecdh.X25519():
-		return X25519, true
 	case ecdh.P256():
 		return CurveP256SM2, true
-	case ecdh.P384():
-		return CurveP384, true
-	case ecdh.P521():
-		return CurveP521, true
 	default:
 		return 0, false
 	}

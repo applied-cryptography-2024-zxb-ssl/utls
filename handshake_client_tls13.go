@@ -8,13 +8,14 @@ import (
 	"bytes"
 	"context"
 	"crypto"
-	"crypto/ecdh"
 	"crypto/hmac"
 	"crypto/rsa"
 	"errors"
 	"fmt"
 	"hash"
 	"time"
+
+	"github.com/emmansun/gmsm/ecdh"
 
 	"github.com/cloudflare/circl/kem"
 )

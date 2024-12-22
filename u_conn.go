@@ -9,13 +9,14 @@ import (
 	"bytes"
 	"context"
 	"crypto/cipher"
-	"crypto/ecdh"
 	"encoding/binary"
 	"errors"
 	"fmt"
 	"hash"
 	"net"
 	"strconv"
+
+	"github.com/emmansun/gmsm/ecdh"
 )
 
 type ClientHelloBuildStatus int

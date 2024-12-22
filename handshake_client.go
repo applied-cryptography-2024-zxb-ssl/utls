@@ -8,7 +8,6 @@ import (
 	"bytes"
 	"context"
 	"crypto"
-	"crypto/ecdh"
 	"crypto/ecdsa"
 	"crypto/ed25519"
 	"crypto/rsa"
@@ -21,6 +20,8 @@ import (
 	"net"
 	"strings"
 	"time"
+
+	"github.com/emmansun/gmsm/ecdh"
 
 	circlSign "github.com/cloudflare/circl/sign"
 )

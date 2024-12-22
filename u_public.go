@@ -5,10 +5,11 @@
 package tls
 
 import (
-	"crypto/ecdh"
 	"crypto/x509"
 	"hash"
 	"time"
+
+	"github.com/emmansun/gmsm/ecdh"
 
 	"github.com/cloudflare/circl/kem"
 )
