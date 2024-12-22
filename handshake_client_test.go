@@ -14,7 +14,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"math/big"
 	"net"
 	"os"
@@ -799,9 +798,9 @@ func testHandshakeClient(t *testing.T, cipherSuites []uint16, curvePreferences [
 	c.Close()
 
 	end := time.Now().UnixMilli()
-	log := fmt.Sprintf("Payload = %v MB, elapsed = %v ms, bandwidth = %v MB/s",
+	log := fmt.Sprintf("Payload = %v MB, elapsed = %v ms, bandwidth = %v MB/s\n",
 		int32(payload_n/1048576), end-start, float64(2*payload_n)*1000.0/(float64(end-start)*1048576.0))
-	ioutil.WriteFile("debug.log", []byte(log), 0644)
+	fmt.Fprintf(os.Stderr, log)
 }
 
 func TestHandshakeClientAESGCMSHA256(t *testing.T) {
