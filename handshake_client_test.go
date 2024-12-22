@@ -14,6 +14,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
 	"math/big"
 	"net"
 	"os"
@@ -727,80 +728,105 @@ func testHandshakeClient(t *testing.T, cipherSuites []uint16, curvePreferences [
 	const letters_n = len(letters)
 
 	// const payload_n = 1073741824 // 1024 MB
-	const payload_n = 134217728 // 128 MB
+	// const payload_n = 134217728 // 128 MB
 	// const payload_n = 16777216  // 16 MB
+	const payload_n = 16
+
+	const handshake_n = 1000
+
 	payload := make([]byte, payload_n)
 	for i := range payload {
 		// payload[i] = letters[rand.Intn(letters_n)]
 		payload[i] = letters[i%letters_n]
 	}
 
-	c, s := localPipe(t)
+	time_micro_record := make([]int64, handshake_n)
+	time_micro_sum := int64(0)
 
-	done := make(chan error)
+	// perform multiple handshakes
+	for iter := 0; iter < handshake_n; iter++ {
+		c, s := localPipe(t)
 
-	go func() {
-		server := Server(s, serverConfig)
-		if err := server.Handshake(); err != nil {
-			panic(err)
+		done := make(chan error)
+
+		go func() {
+			server := Server(s, serverConfig)
+			if err := server.Handshake(); err != nil {
+				panic(err)
+			}
+
+			// Server: receive payload_n bytes from client
+			var request [payload_n]byte
+			n := 0
+			for n < payload_n {
+				recv_n, _ := server.Read(request[n:])
+				if recv_n == 0 {
+					break
+				}
+				n += recv_n
+			}
+			if n != payload_n || !bytes.Equal(request[:], payload) {
+				panic(fmt.Sprintf("Server: expected %v bytes, but %v received with compare() = %v",
+					payload_n, n, bytes.Compare(request[:], payload)))
+			}
+
+			// Server: send payload_n bytes
+			n, _ = server.Write(request[:])
+			if n != payload_n {
+				panic(fmt.Sprintf("Server: sending %v bytes, %v sent successfully", payload_n, n))
+			}
+			server.Close()
+
+			done <- nil
+		}()
+
+		start := time.Now().UnixMicro()
+
+		clientConfig := testConfig.Clone()
+		client := Client(c, clientConfig)
+
+		// Client: write some bytes to server
+		n, _ := client.Write(payload[:])
+		if n != payload_n {
+			panic(fmt.Sprintf("Client: sending %v bytes, %v sent successfully", payload_n, n))
 		}
 
-		// Server: receive payload_n bytes from client
-		var request [payload_n]byte
-		n := 0
+		// Client: receive payload_n bytes from server
+		var reply [payload_n]byte
+		n = 0
 		for n < payload_n {
-			recv_n, _ := server.Read(request[n:])
+			recv_n, _ := io.ReadFull(client, reply[n:])
 			if recv_n == 0 {
 				break
 			}
 			n += recv_n
 		}
-		if n != payload_n || !bytes.Equal(request[:], payload) {
-			panic(fmt.Sprintf("Server: expected %v bytes, but %v received with compare() = %v",
-				payload_n, n, bytes.Compare(request[:], payload)))
+		if n != payload_n || !bytes.Equal(reply[:], payload) {
+			panic(fmt.Sprintf("Client: expected %v bytes, but %v received with compare() = %v",
+				payload_n, n, bytes.Compare(reply[:], payload)))
 		}
+		c.Close()
 
-		// Server: send payload_n bytes
-		n, _ = server.Write(request[:])
-		if n != payload_n {
-			panic(fmt.Sprintf("Server: sending %v bytes, %v sent successfully", payload_n, n))
-		}
-		server.Close()
-
-		done <- nil
-	}()
-
-	start := time.Now().UnixMilli()
-
-	clientConfig := testConfig.Clone()
-	client := Client(c, clientConfig)
-
-	// Client: write some bytes to server
-	n, _ := client.Write(payload[:])
-	if n != payload_n {
-		panic(fmt.Sprintf("Client: sending %v bytes, %v sent successfully", payload_n, n))
+		end := time.Now().UnixMicro()
+		time_micro_record[iter] = end - start
+		time_micro_sum += end - start
 	}
 
-	// Client: receive payload_n bytes from server
-	var reply [payload_n]byte
-	n = 0
-	for n < payload_n {
-		recv_n, _ := io.ReadFull(client, reply[n:])
-		if recv_n == 0 {
-			break
-		}
-		n += recv_n
-	}
-	if n != payload_n || !bytes.Equal(reply[:], payload) {
-		panic(fmt.Sprintf("Client: expected %v bytes, but %v received with compare() = %v",
-			payload_n, n, bytes.Compare(reply[:], payload)))
-	}
-	c.Close()
+	time_micro_avg := float64(time_micro_sum) / float64(handshake_n)
 
-	end := time.Now().UnixMilli()
-	log := fmt.Sprintf("Payload = %v MB, elapsed = %v ms, bandwidth = %v MB/s\n",
-		int32(payload_n/1048576), end-start, float64(2*payload_n)*1000.0/(float64(end-start)*1048576.0))
-	fmt.Fprintf(os.Stderr, log)
+	time_micro_std := float64(0)
+	for _, t := range time_micro_record {
+		time_micro_std += (float64(t) - time_micro_avg) * (float64(t) - time_micro_avg)
+	}
+	if handshake_n > 1 {
+		time_micro_std = math.Sqrt(time_micro_std / float64(handshake_n-1))
+	} else {
+		time_micro_std = 0
+	}
+
+	fmt.Fprintf(os.Stderr, "N = %v, Payload = %v bytes, total time elapsed = %v ms, bandwidth = %.2f MB/s\n",
+		handshake_n, payload_n, time_micro_sum/1000, float64(2*handshake_n*payload_n)*1000000.0/(float64(time_micro_sum)*1048576.0))
+	fmt.Fprintf(os.Stderr, "Average time = %.2f ms, std-dev = %.2f ms\n", time_micro_avg/1000.0, time_micro_std/1000.0)
 }
 
 func TestHandshakeClientAESGCMSHA256(t *testing.T) {
