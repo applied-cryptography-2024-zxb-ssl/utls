@@ -19,18 +19,15 @@ import (
 	"hash"
 	"runtime"
 
-	"github.com/emmansun/gmsm/sm4"
 	"github.com/emmansun/gmsm/sm3"
+	"github.com/emmansun/gmsm/sm4"
 	"github.com/refraction-networking/utls/internal/boring"
 	"golang.org/x/sys/cpu"
 
 	"golang.org/x/crypto/chacha20poly1305"
 
 	"github.com/refraction-networking/utls/ownsm3"
-
 )
-
-
 
 // CipherSuite is a TLS cipher suite. Note that most functions in this package
 // accept and expose cipher suite IDs instead of this type.
@@ -64,6 +61,8 @@ func CipherSuites() []*CipherSuite {
 	return []*CipherSuite{
 		{TLS_SM4_GCM_SM3, "TLS_SM4_GCM_SM3", supportedOnlyTLS13, false},
 		{TLS_SM4_GCM_OWNSM3, "TLS_SM4_GCM_OWNSM3", supportedOnlyTLS13, false},
+		{TLS_AES_128_GCM_SM3, "TLS_AES_128_GCM_SM3", supportedOnlyTLS13, false},
+		{TLS_SM4_GCM_SHA256, "TLS_SM4_GCM_SHA256", supportedOnlyTLS13, false},
 
 		{TLS_AES_128_GCM_SHA256, "TLS_AES_128_GCM_SHA256", supportedOnlyTLS13, false},
 		{TLS_AES_256_GCM_SHA384, "TLS_AES_256_GCM_SHA384", supportedOnlyTLS13, false},
@@ -219,8 +218,6 @@ func (h TLS13SM3) Size() int {
 	return sm3.New().Size()
 }
 
-
-
 type TLS13OWNSM3 struct {
 }
 
@@ -249,7 +246,8 @@ var cipherSuitesTLS13 = []*cipherSuiteTLS13{ // TODO: replace with a map.
 	{TLS_AES_256_GCM_SHA384, 32, aeadAESGCMTLS13, crypto.SHA384},
 	{TLS_SM4_GCM_SM3, 16, aeadSM4GCMTLS13, TLS13SM3{}},
 	{TLS_SM4_GCM_OWNSM3, 16, aeadSM4GCMTLS13, TLS13OWNSM3{}},
-	
+	{TLS_AES_128_GCM_SM3, 16, aeadAESGCMTLS13, TLS13SM3{}},
+	{TLS_SM4_GCM_SHA256, 16, aeadSM4GCMTLS13, crypto.SHA256},
 }
 
 // cipherSuitesPreferenceOrder is the order in which we'll select (on the
@@ -421,6 +419,8 @@ var defaultCipherSuitesTLS13 = []uint16{
 	TLS_CHACHA20_POLY1305_SHA256,
 	TLS_SM4_GCM_SM3,
 	TLS_SM4_GCM_OWNSM3,
+	TLS_AES_128_GCM_SM3,
+	TLS_SM4_GCM_SHA256,
 }
 
 var defaultCipherSuitesTLS13NoAES = []uint16{
@@ -429,6 +429,8 @@ var defaultCipherSuitesTLS13NoAES = []uint16{
 	TLS_AES_256_GCM_SHA384,
 	TLS_SM4_GCM_SM3,
 	TLS_SM4_GCM_OWNSM3,
+	TLS_AES_128_GCM_SM3,
+	TLS_SM4_GCM_SHA256,
 }
 
 var (
@@ -791,8 +793,10 @@ const (
 	TLS_CHACHA20_POLY1305_SHA256 uint16 = 0x1303
 
 	// RFC 8998 SM
-	TLS_SM4_GCM_SM3 uint16 = 0x00c6
-	TLS_SM4_GCM_OWNSM3 uint16 = 0x00c7
+	TLS_SM4_GCM_SM3     uint16 = 0x00c6
+	TLS_SM4_GCM_OWNSM3  uint16 = 0x00c7
+	TLS_AES_128_GCM_SM3 uint16 = 0x00c8
+	TLS_SM4_GCM_SHA256  uint16 = 0x00c9
 
 	// TLS_FALLBACK_SCSV isn't a standard cipher suite but an indicator
 	// that the client is doing version fallback. See RFC 7507.
